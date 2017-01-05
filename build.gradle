@@ -1,0 +1,196 @@
+ext {
+  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.5.0-RELEASE"
+  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.5.1-SNAPSHOT"
+  mavenPublishUrl = project.hasProperty("mavenPublishUrl") ? project.getProperty("mavenPublishUrl") : "https://development.adaptris.net/nexus/content/repositories/snapshots"
+  repoUsername = project.hasProperty("repoUsername") ? project.getProperty("repoUsername") : "unknown"
+  repoPassword = project.hasProperty("repoPassword") ? project.getProperty("repoPassword") : "unknown"
+  defaultNexusRepo = project.hasProperty("defaultNexusRepo") ? project.getProperty("defaultNexusRepo") : "https://repo1.maven.org/maven2/"
+  componentName = "Interlok MQTT"
+  organizationName = "Adaptris Ltd"
+  organizationUrl = "http://www.adaptris.com"
+  slf4jVersion = "1.7.12"
+}
+
+// Apply the java plugin to add support for Java
+apply plugin: "java"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: "eclipse"
+// apply plugin: "jacoco"
+
+sourceCompatibility = 1.7
+group   = "com.adaptris"
+version = releaseVersion
+def versionDir = "$buildDir/version"
+
+if (JavaVersion.current().isJava8Compatible()) {
+  allprojects {
+    tasks.withType(Javadoc) {
+      options.addStringOption("Xdoclint:none", "-quiet")
+    }
+  }
+}
+
+repositories {
+  maven { url "https://development.adaptris.net/nexus/content/repositories/releases/" }
+  maven { url "https://development.adaptris.net/nexus/content/groups/public/" }
+  maven {
+    url "https://development.adaptris.net/nexus/content/repositories/thirdparty/"
+    credentials {
+      username repoUsername
+      password repoPassword
+    }
+  }
+  maven { url "https://development.adaptris.net/nexus/content/groups/adaptris-snapshots/" }
+  maven {
+    url "https://development.adaptris.net/nexus/content/repositories/adaptris-private-snapshots/"
+    credentials {
+      username repoUsername
+      password repoPassword
+    }
+  }
+  maven {
+    url "https://development.adaptris.net/nexus/content/repositories/adaptris-private-releases/"
+    credentials {
+      username repoUsername
+      password repoPassword
+    }
+  }
+  maven { url "$defaultNexusRepo" }
+}
+
+eclipse {
+    classpath {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
+
+configurations {
+  javadoc {}
+  all*.exclude group: "c3p0"
+  all*.exclude group: "commons-logging"
+}
+
+configurations.all {
+  resolutionStrategy.cacheChangingModulesFor 0, "seconds"
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+  compile ("com.adaptris:adp-core:$adpCoreVersion") { changing= true}
+  compile ("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
+  compile ("com.adaptris:adp-licensing:$adpCoreVersion") { changing= true}
+
+  compile "org.slf4j:slf4j-api:$slf4jVersion"
+
+  compile "com.atomikos:transactions-jms:3.8.0"
+  compile "javax.transaction:jta:1.1"
+  compile "org.apache.httpcomponents:httpclient:4.4.1"
+  compile "org.apache.httpcomponents:httpcore:4.4.1"
+  compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0"
+
+  runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
+  runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+
+  testCompile "junit:junit:4.11"
+  testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
+  testCompile ("com.adaptris:adp-licensing-stub:$adpCoreVersion") { changing= true}
+  testCompile "log4j:log4j:1.2.17"
+  testCompile "org.mockito:mockito-all:1.9.5"
+  testCompile "org.apache.activemq:activemq-broker:5.10.0"
+  testCompile "org.apache.activemq:activemq-mqtt:5.10.0"
+
+  javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
+}
+
+jar {
+  manifest {
+    attributes("Built-By": System.getProperty('user.name'),
+               "Build-Jdk": System.getProperty('java.version'),
+               "Implementation-Title": componentName,
+               "Implementation-Version": project.version,
+               "Implementation-Vendor-Id": project.group,
+               "Implementation-Vendor": organizationName,
+               "Implementation-URL": organizationUrl)
+  }
+}
+
+javadoc {
+  configure(options) {
+    links = [
+      "https://development.adaptris.net/javadocs/v3-snapshot/Interlok-API/",
+      "https://development.adaptris.net/javadocs/v3-snapshot/Interlok-Common/",
+    ]
+
+    taglets = ["com.adaptris.taglet.ConfigTaglet", "com.adaptris.taglet.LicenseTaglet"]
+    options.addStringOption "tagletpath", configurations.javadoc.asPath
+  }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = "javadoc"
+  from javadoc.destinationDir
+}
+
+task examplesJar(type: Jar, dependsOn: test) {
+  classifier = "examples"
+  from new File(buildDir, "/examples")
+}
+
+artifacts {
+  archives javadocJar
+  archives examplesJar
+}
+
+sourceSets {
+  main {
+    output.dir(versionDir, builtBy: "generateVersion")
+  }
+}
+
+  // Generate the META-INF/adaptris-version file
+task generateVersion {
+  doLast {
+    def versionFile = new File(new File(versionDir, "META-INF"), "adaptris-version")
+    versionFile.getParentFile().mkdirs()
+    ant.propertyfile(file: versionFile) {
+      entry(key: "component.name", value: componentName)
+      entry(key: "build.version", value: releaseVersion)
+      entry(key: "build.date", value: new Date().format("yyyy-MM-dd"))
+    }
+  }
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+        from components.java
+
+        artifact javadocJar { classifier "javadoc" }
+        artifact examplesJar { classifier "examples" }
+    }
+    mavenCustom(MavenPublication) {
+      pom.withXml {
+        asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
+        // asNode().appendNode("logo", "/adapter-web-gui/h5/img/mqtt.png")
+        def properties = asNode().appendNode("properties")
+        properties.appendNode("externalUrl", "http://mqtt.org")
+        properties.appendNode("notes", "Requires additional jars not automatically delivered")
+        properties.appendNode("license", "true")
+        properties.appendNode("target", "3.5.0+")
+        properties.appendNode("tags", "MQTT")
+        properties.appendNode("javadocs", "https://development.adaptris.net/javadocs/latest-stable/optional/mqtt/")
+      }
+    }
+  }
+  repositories {
+    maven {
+      credentials {
+        username repoUsername
+        password repoPassword
+      }
+      url mavenPublishUrl
+    }
+  }
+}
