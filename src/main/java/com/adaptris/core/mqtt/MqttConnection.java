@@ -275,7 +275,7 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
     }
     return mqttAsyncClients.get(clientId);
   }
-  
+
   private MqttConnectOptions initMqttConnectOptions() throws PasswordException, UnsupportedEncodingException {
     if (options == null) {
       options = new MqttConnectOptions();
@@ -285,21 +285,21 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
       }
       options.setMqttVersion(protocolVersion.getVersionValue());
       options.setCleanSession(cleanSession);
-  
+
       int connectionTimeoutSeconds = timeIntervalToSecond(getConnectionTimeout());
       if (connectionTimeoutSeconds > -1) {
         options.setConnectionTimeout(connectionTimeoutSeconds);
       }
-  
+
       int keepAliveIntervalSeconds = timeIntervalToSecond(getKeepAliveInterval());
       if (keepAliveIntervalSeconds > -1) {
         options.setKeepAliveInterval(keepAliveIntervalSeconds);
       }
-  
+
       // if (sslProperties != null) {
       //  options.setSSLProperties(sslProperties);
       // }
-  
+
       if (lastWill != null) {
         byte[] willPayload = lastWill.getPayload() != null ? lastWill.getPayload().getBytes(lastWill.getPayloadCharEncoding()) : null;
         options.setWill(lastWill.getTopic(), willPayload, lastWill.getQos(), lastWill.getRetained());

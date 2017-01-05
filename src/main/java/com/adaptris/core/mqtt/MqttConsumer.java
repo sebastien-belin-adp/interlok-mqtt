@@ -132,7 +132,6 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
   @Override
   public void connectionLost(Throwable arg0) {
     log.debug("connectionLost called", arg0);
-    // TODO handle reconnection
   }
 
   @Override

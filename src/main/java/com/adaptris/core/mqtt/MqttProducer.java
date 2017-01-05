@@ -129,7 +129,7 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
 
     String topicURL = cachedTopicURLs.get(topicName);
 
-    // It's not in the cache. Look up the topic url from Amazon and cache it.
+    // It's not in the cache. Look up the topic url and cache it.
     if(topicURL == null) {
       topicURL = retrieveTopicFromMqtt(topicName);
       cachedTopicURLs.put(topicName, topicURL);
