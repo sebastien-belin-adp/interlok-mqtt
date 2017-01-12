@@ -212,6 +212,10 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
     if (clientId == null || !mqttClients.containsKey(clientId)) {
       return newSyncClient();
     }
+    return getSyncClient(clientId);
+  }
+  
+  MqttClient getSyncClient(String clientId) throws CoreException {
     return mqttClients.get(clientId);
   }
 
@@ -273,6 +277,10 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
     if (clientId == null || !mqttAsyncClients.containsKey(clientId)) {
       return newAsyncClient();
     }
+    return getAsyncClient(clientId);
+  }
+  
+  MqttAsyncClient getAsyncClient(String clientId) throws CoreException {
     return mqttAsyncClients.get(clientId);
   }
 

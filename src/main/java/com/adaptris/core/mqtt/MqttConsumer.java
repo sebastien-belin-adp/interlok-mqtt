@@ -74,12 +74,14 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
 
   @Override
   public void start() throws CoreException {
-    mqttClient = getMqtt();
-    mqttClient.setCallback(this);
-    topic = mqttClient.getTopic(getDestination().getDestination()).getName();
-    if (timeToWait != null) {
-      long timeToWaitInMillis = timeToWait.toMilliseconds();
-      mqttClient.setTimeToWait(timeToWaitInMillis);
+    if (mqttClient == null) {
+      mqttClient = getMqtt();
+      mqttClient.setCallback(this);
+      topic = mqttClient.getTopic(getDestination().getDestination()).getName();
+      if (timeToWait != null) {
+        long timeToWaitInMillis = timeToWait.toMilliseconds();
+        mqttClient.setTimeToWait(timeToWaitInMillis);
+      }
     }
     if (!mqttClient.isConnected()) {
       log.debug("Connection is not started so we start it");
@@ -95,20 +97,21 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
   public void stop() {
     try {
       mqttClient.unsubscribe(topic);
-      retrieveConnection(MqttConnection.class).stopSyncClientConnection(mqttClient);
     } catch (MqttException mqtte) {
       log.error("Could not unsuscribe from topic {}", topic, mqtte);
     }
+    retrieveConnection(MqttConnection.class).stopSyncClientConnection(mqttClient);
   }
 
   @Override
   public void close() {
     try {
       mqttClient.unsubscribe(topic);
-      retrieveConnection(MqttConnection.class).closeSyncClientConnection(mqttClient);
     } catch (MqttException mqtte) {
       log.error("Could not unsuscribe from topic {}", topic, mqtte);
     }
+    retrieveConnection(MqttConnection.class).closeSyncClientConnection(mqttClient);
+    mqttClient = null;
   }
 
   /*@Override
