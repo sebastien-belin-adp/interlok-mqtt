@@ -108,7 +108,7 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
       // Resolve the Topic URL from the destination and the message (in case of metadata destinations for example)
       String topic = resolveTopic(msg);
 
-      MqttMessage sendMessageRequest = new MqttMessage(msg.getPayload());
+      MqttMessage sendMessageRequest = new MqttMessage(encode(msg));
       applyExtraOptions(sendMessageRequest);
       log.debug("publish message");
       mqttClient.publish(topic, sendMessageRequest);

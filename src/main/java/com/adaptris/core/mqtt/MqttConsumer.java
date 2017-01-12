@@ -3,7 +3,6 @@ package com.adaptris.core.mqtt;
 import javax.validation.Valid;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -19,8 +18,6 @@ import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageConsumerImp;
 import com.adaptris.core.ConsumeDestination;
 import com.adaptris.core.CoreException;
-import com.adaptris.core.DefaultMessageFactory;
-import com.adaptris.core.jms.JmsConnection;
 import com.adaptris.core.licensing.License;
 import com.adaptris.core.licensing.License.LicenseType;
 import com.adaptris.core.licensing.LicenseChecker;
@@ -142,7 +139,7 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
   @Override
   public void messageArrived(String arg0, MqttMessage message) throws Exception {
     log.debug("messageArrived called");
-    AdaptrisMessage adaptrisMessage = DefaultMessageFactory.getDefaultInstance().newMessage(message.getPayload());
+    AdaptrisMessage adaptrisMessage = decode(message.getPayload());
     retrieveAdaptrisMessageListener().onAdaptrisMessage(adaptrisMessage);
   }
 
