@@ -82,6 +82,13 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
     if(getDestination() == null) {
       throw new CoreException("Destination is required");
     }
+
+    mqttClient = getMqtt();
+    if (timeToWait != null) {
+      long timeToWaitInMillis = timeToWait.toMilliseconds();
+      mqttClient.setTimeToWait(timeToWaitInMillis);
+    }
+    startConnection();
   }
 
   private MqttClient getMqtt() throws CoreException {
@@ -90,13 +97,10 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
 
   @Override
   public void start() throws CoreException {
-    if (mqttClient == null) {
-      mqttClient = getMqtt();
-      if (timeToWait != null) {
-        long timeToWaitInMillis = timeToWait.toMilliseconds();
-        mqttClient.setTimeToWait(timeToWaitInMillis);
-      }
-    }
+    startConnection();
+  }
+
+  private void startConnection() throws CoreException {
     if (!mqttClient.isConnected()) {
       log.debug("Connection is not started so we start it");
       retrieveConnection(MqttConnection.class).startSyncClientConnection(mqttClient);
@@ -122,9 +126,9 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
 
       MqttMessage sendMessageRequest = new MqttMessage(encode(msg));
       applyExtraOptions(sendMessageRequest);
-      log.debug("publish message");
+      log.debug("Publish message to topic [{}]", topic);
       mqttClient.publish(topic, sendMessageRequest);
-      log.debug("message published");
+      log.debug("Message published");
     } catch (Exception e) {
       throw new ProduceException(e);
     }

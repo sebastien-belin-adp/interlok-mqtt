@@ -112,7 +112,7 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
 
   @Override
   protected synchronized void initConnection() throws CoreException {
-    log.debug("Init Mqtt Client");
+    log.debug("Init Mqtt Connection");
     try {
       initMqttConnectOptions();
     } catch (Exception e) {
@@ -180,9 +180,9 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
   }
 
   public void stopSyncClientConnection(MqttClient mqttClient) {
-    log.debug("Disconnect Mqtt Client");
     try {
       if (mqttClient != null && mqttClient.isConnected()) {
+        log.debug("Disconnect Mqtt Client [{}]", mqttClient.getClientId());
         mqttClient.disconnect();
       }
     } catch (MqttException mqtte) {
@@ -191,18 +191,38 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
   }
 
   public void closeSyncClientConnection(MqttClient mqttClient) {
-    log.debug("Close Mqtt Client");
     try {
       if (mqttClient != null) {
+        log.debug("Close Mqtt Client [{}]", mqttClient.getClientId());
         if (mqttClient.isConnected()) {
           mqttClient.disconnect();
         }
-        mqttClient.close();
-        mqttClients.remove(mqttClient.getClientId());
+        doSyncClientClose(mqttClient);
       }
     } catch (MqttException mqtte) {
       log.error("Could not close connection", mqtte);
+      forceCloseSyncClientConnection(mqttClient);
     }
+  }
+  
+  public void forceCloseSyncClientConnection(MqttClient mqttClient) {
+    log.debug("Force Close Mqtt Client");
+    try {
+      if (mqttClient != null) {
+        if (mqttClient.isConnected()) {
+          mqttClient.disconnectForcibly();
+        }
+        doSyncClientClose(mqttClient);
+      }
+    } catch (Exception expt) {
+      log.trace("Could not force close connection", expt);
+    }
+  }
+  
+  private void doSyncClientClose(MqttClient mqttClient) throws MqttException {
+    mqttClient.setCallback(null);
+    mqttClient.close();
+    mqttClients.remove(mqttClient.getClientId());
   }
 
   /**
@@ -245,8 +265,8 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
   }
 
   public void stopAsyncClientConnection(MqttAsyncClient mqttAsyncClient) {
-    log.debug("Disconnect Async Mqtt Client");
     try {
+      log.debug("Disconnect Async Mqtt Client [{}]", mqttAsyncClient.getClientId());
       if (mqttAsyncClient != null && mqttAsyncClient.isConnected()) {
         mqttAsyncClient.disconnect();
       }
@@ -256,18 +276,36 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
   }
 
   public void closeAsyncClientConnection(MqttAsyncClient mqttAsyncClient) {
-    log.debug("Close Async Mqtt Client");
     try {
       if (mqttAsyncClient != null) {
+        log.debug("Close Async Mqtt Client [{}]", mqttAsyncClient.getClientId());
         if (mqttAsyncClient.isConnected()) {
           mqttAsyncClient.disconnect();
         }
-        mqttAsyncClient.close();
-        mqttAsyncClients.remove(mqttAsyncClient.getClientId());
+        doAsyncClientClose(mqttAsyncClient);
       }
     } catch (MqttException mqtte) {
       log.error("Could not close connection", mqtte);
+      forceCloseAsyncClientConnection(mqttAsyncClient);
     }
+  }
+  
+  public void forceCloseAsyncClientConnection(MqttAsyncClient mqttAsyncClient) {
+    log.debug("Force Close Async Mqtt Client");
+    try {
+      if (mqttAsyncClient != null) {
+        mqttAsyncClient.disconnectForcibly();
+        doAsyncClientClose(mqttAsyncClient);
+      }
+    } catch (Exception expt) {
+      log.trace("Could not force close connection", expt);
+    }
+  }
+  
+  private void doAsyncClientClose(MqttAsyncClient mqttAsyncClient) throws MqttException {
+    mqttAsyncClient.setCallback(null);
+    mqttAsyncClient.close();
+    mqttAsyncClients.remove(mqttAsyncClient.getClientId());
   }
 
   /**

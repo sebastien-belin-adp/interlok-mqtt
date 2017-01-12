@@ -65,6 +65,15 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
     if (getDestination() == null) {
       throw new CoreException("Destination is required");
     }
+
+    mqttClient = getMqtt();
+    mqttClient.setCallback(this);
+    topic = mqttClient.getTopic(getDestination().getDestination()).getName();
+    if (timeToWait != null) {
+      long timeToWaitInMillis = timeToWait.toMilliseconds();
+      mqttClient.setTimeToWait(timeToWaitInMillis);
+    }
+    startConnection();
   }
 
   @Override
@@ -74,15 +83,11 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
 
   @Override
   public void start() throws CoreException {
-    if (mqttClient == null) {
-      mqttClient = getMqtt();
-      mqttClient.setCallback(this);
-      topic = mqttClient.getTopic(getDestination().getDestination()).getName();
-      if (timeToWait != null) {
-        long timeToWaitInMillis = timeToWait.toMilliseconds();
-        mqttClient.setTimeToWait(timeToWaitInMillis);
-      }
-    }
+    startConnection();
+    subscribeToTopic();
+  }
+
+  private void startConnection() throws CoreException {
     if (!mqttClient.isConnected()) {
       log.debug("Connection is not started so we start it");
       retrieveConnection(MqttConnection.class).startSyncClientConnection(mqttClient);
@@ -106,7 +111,9 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
   @Override
   public void close() {
     try {
-      mqttClient.unsubscribe(topic);
+      if (mqttClient.isConnected()) {
+        mqttClient.unsubscribe(topic);
+      }
     } catch (MqttException mqtte) {
       log.error("Could not unsuscribe from topic {}", topic, mqtte);
     }
@@ -121,27 +128,34 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
 
   @Override
   public void connectComplete(boolean reconnect, String serverURI) {
+    log.debug("Connection to server [{}] complete", serverURI);
+    if (reconnect) {
+      subscribeToTopic();
+    }
+  }
+
+  private void subscribeToTopic() {
     try {
-      log.debug("Connection comple. Subscribe to topic [{}]", topic);
+      log.debug("Subscribe to topic [{}]", topic);
       mqttClient.subscribe(topic);
     } catch (MqttException mqtte) {
-      log.error("Failed to subscribe to topic [{}] after connetion complete.", topic, mqtte);
+      log.error("Failed to subscribe to topic [{}]", topic, mqtte);
     }
   }
 
   @Override
   public void connectionLost(Throwable arg0) {
-    log.debug("connectionLost called", arg0);
+    log.debug("Connection Lost", arg0);
   }
 
   @Override
   public void deliveryComplete(IMqttDeliveryToken arg0) {
-    log.debug("deliveryComplete called");
+    log.debug("Message Delivery Complete");
   }
 
   @Override
   public void messageArrived(String arg0, MqttMessage message) throws Exception {
-    log.debug("messageArrived called");
+    log.debug("Message Arrived");
     AdaptrisMessage adaptrisMessage = decode(message.getPayload());
     retrieveAdaptrisMessageListener().onAdaptrisMessage(adaptrisMessage);
   }
