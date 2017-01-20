@@ -3,6 +3,7 @@ package com.adaptris.core.mqtt;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -28,6 +29,7 @@ import com.adaptris.core.licensing.License;
 import com.adaptris.core.licensing.License.LicenseType;
 import com.adaptris.core.licensing.LicenseChecker;
 import com.adaptris.core.licensing.LicensedComponent;
+import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -43,7 +45,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("mqtt-producer")
 @ComponentProfile(summary = "Place message on a MQTT topic", tag = "producer,mqtt",
     recommended = {MqttConnection.class})
-@DisplayOrder(order = {"destination", "qos", "retained"})
+@DisplayOrder(order = {"destination", "qos", "retained", "timeToWait"})
 public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedComponent*/ {
 
   private transient Map<String, String> cachedTopicURLs = new ConcurrentHashMap<String, String>();
@@ -54,9 +56,12 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
   @Min(0)
   @Max(2)
   @AdvancedConfig
-  private Integer qos = MqttConstants.QOS_DEFAULT;
+  private int qos = MqttConstants.QOS_DEFAULT;
   @AdvancedConfig
   private boolean retained = MqttConstants.RETAINED_DEFAULT;
+  @Valid
+  @AdvancedConfig
+  private TimeInterval timeToWait;
 
   private transient final Logger log = LoggerFactory.getLogger(this.getClass());
   private transient MqttClient mqttClient;
@@ -77,6 +82,13 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
     if(getDestination() == null) {
       throw new CoreException("Destination is required");
     }
+
+    mqttClient = getMqtt();
+    if (timeToWait != null) {
+      long timeToWaitInMillis = timeToWait.toMilliseconds();
+      mqttClient.setTimeToWait(timeToWaitInMillis);
+    }
+    startConnection();
   }
 
   private MqttClient getMqtt() throws CoreException {
@@ -85,7 +97,10 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
 
   @Override
   public void start() throws CoreException {
-    mqttClient = getMqtt();
+    startConnection();
+  }
+
+  private void startConnection() throws CoreException {
     if (!mqttClient.isConnected()) {
       log.debug("Connection is not started so we start it");
       retrieveConnection(MqttConnection.class).startSyncClientConnection(mqttClient);
@@ -100,6 +115,7 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
   @Override
   public void close() {
     retrieveConnection(MqttConnection.class).closeSyncClientConnection(mqttClient);
+    mqttClient = null;
   }
 
   @Override
@@ -108,11 +124,11 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
       // Resolve the Topic URL from the destination and the message (in case of metadata destinations for example)
       String topic = resolveTopic(msg);
 
-      MqttMessage sendMessageRequest = new MqttMessage(msg.getPayload());
+      MqttMessage sendMessageRequest = new MqttMessage(encode(msg));
       applyExtraOptions(sendMessageRequest);
-      log.debug("publish message");
+      log.debug("Publish message to topic [{}]", topic);
       mqttClient.publish(topic, sendMessageRequest);
-      log.debug("message published");
+      log.debug("Message published");
     } catch (Exception e) {
       throw new ProduceException(e);
     }
@@ -129,7 +145,7 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
 
     String topicURL = cachedTopicURLs.get(topicName);
 
-    // It's not in the cache. Look up the topic url from Amazon and cache it.
+    // It's not in the cache. Look up the topic url and cache it.
     if(topicURL == null) {
       topicURL = retrieveTopicFromMqtt(topicName);
       cachedTopicURLs.put(topicName, topicURL);
@@ -151,29 +167,6 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
   public boolean isEnabled(License license) {
     return license.isEnabled(LicenseType.Standard);
   }*/
-
-  /**
-   * Returns whether or not messages should be retained by the server. For messages received from
-   * the server, this method returns whether or not the message was from a current publisher, or was
-   * "retained" by the server as the last message published on the topic.
-   * 
-   * @return <code>true</code> if the message should be retained by the server.
-   */
-  public boolean getRetained() {
-    return retained;
-  }
-
-  /**
-   * Whether or not the publish message should be retained by the messaging engine. Sending a
-   * message with the retained set to <code>false</code> will clear the retained message from the
-   * server. The default value is <code>false</code>
-   * 
-   * @param retained whether or not the messaging engine should retain the message.
-   * @throws IllegalStateException if this message cannot be edited
-   */
-  public void setRetained(boolean retained) {
-    this.retained = retained;
-  }
 
   /**
    * Returns the quality of service for this message.
@@ -217,6 +210,55 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
    */
   public void setQos(int qos) {
     this.qos = qos;
+  }
+
+  /**
+   * Returns whether or not messages should be retained by the server. For messages received from
+   * the server, this method returns whether or not the message was from a current publisher, or was
+   * "retained" by the server as the last message published on the topic.
+   * 
+   * @return <code>true</code> if the message should be retained by the server.
+   */
+  public boolean getRetained() {
+    return retained;
+  }
+
+  /**
+   * Whether or not the publish message should be retained by the messaging engine. Sending a
+   * message with the retained set to <code>false</code> will clear the retained message from the
+   * server. The default value is <code>false</code>
+   * 
+   * @param retained whether or not the messaging engine should retain the message.
+   * @throws IllegalStateException if this message cannot be edited
+   */
+  public void setRetained(boolean retained) {
+    this.retained = retained;
+  }
+
+  public TimeInterval getTimeToWait() {
+    return timeToWait;
+  }
+
+  /**
+   * Set the maximum time to wait for an action to complete.
+   * <p>
+   * Set the maximum time to wait for an action to complete before returning control to the invoking
+   * application. Control is returned when:
+   * <ul>
+   * <li>the action completes
+   * <li>or when the timeout if exceeded
+   * <li>or when the client is disconnect/shutdown
+   * <ul>
+   * The default value is -1 which means the action will not timeout. In the event of a timeout the
+   * action carries on running in the background until it completes. The timeout is used on methods
+   * that block while the action is in progress.
+   * </p>
+   * 
+   * @param timeToWait before the action times out. A value or 0 will wait until the action finishes
+   *        and not timeout.
+   */
+  public void setTimeToWait(TimeInterval timeToWait) {
+    this.timeToWait = timeToWait;
   }
 
 }
