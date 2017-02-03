@@ -164,13 +164,12 @@ task generateVersion {
 
 publishing {
   publications {
-    mavenJava(MavenPublication) {
-        from components.java
-
-        artifact javadocJar { classifier "javadoc" }
-        artifact examplesJar { classifier "examples" }
-    }
     mavenCustom(MavenPublication) {
+      from components.java
+      
+      artifact javadocJar { classifier "javadoc" }
+      artifact examplesJar { classifier "examples" }
+      
       pom.withXml {
         asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
         // asNode().appendNode("logo", "/adapter-web-gui/h5/img/mqtt.png")
