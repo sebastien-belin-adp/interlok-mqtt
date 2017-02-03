@@ -172,7 +172,8 @@ publishing {
       
       pom.withXml {
         asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
-        // asNode().appendNode("logo", "/adapter-web-gui/h5/img/mqtt.png")
+        // asNode().appendNode("url", "https://development.adaptris.net/docs/Interlok/mqtt-integration.html")
+        // asNode().appendNode("logo", "/interlok/img/mqtt.png")
         def properties = asNode().appendNode("properties")
         properties.appendNode("externalUrl", "http://mqtt.org")
         properties.appendNode("notes", "Requires additional jars not automatically delivered")
