@@ -1,6 +1,6 @@
 ext {
-  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.5-SNAPSHOT"
-  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.5-SNAPSHOT"
+  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.6-SNAPSHOT"
+  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.6-SNAPSHOT"
   mavenPublishUrl = project.hasProperty("mavenPublishUrl") ? project.getProperty("mavenPublishUrl") : "https://development.adaptris.net/nexus/content/repositories/snapshots"
   repoUsername = project.hasProperty("repoUsername") ? project.getProperty("repoUsername") : "unknown"
   repoPassword = project.hasProperty("repoPassword") ? project.getProperty("repoPassword") : "unknown"
@@ -164,16 +164,16 @@ task generateVersion {
 
 publishing {
   publications {
-    mavenJava(MavenPublication) {
-        from components.java
-
-        artifact javadocJar { classifier "javadoc" }
-        artifact examplesJar { classifier "examples" }
-    }
     mavenCustom(MavenPublication) {
+      from components.java
+      
+      artifact javadocJar { classifier "javadoc" }
+      artifact examplesJar { classifier "examples" }
+      
       pom.withXml {
         asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
-        // asNode().appendNode("logo", "/adapter-web-gui/h5/img/mqtt.png")
+        // asNode().appendNode("url", "https://development.adaptris.net/docs/Interlok/mqtt-integration.html")
+        // asNode().appendNode("logo", "/interlok/img/mqtt.png")
         def properties = asNode().appendNode("properties")
         properties.appendNode("externalUrl", "http://mqtt.org")
         properties.appendNode("notes", "Requires additional jars not automatically delivered")
