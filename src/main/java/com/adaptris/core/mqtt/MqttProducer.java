@@ -15,6 +15,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.AutoPopulated;
 import com.adaptris.annotation.ComponentProfile;
@@ -43,6 +44,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @since 3.5.0
  */
 @XStreamAlias("mqtt-producer")
+@AdapterComponent
 @ComponentProfile(summary = "Place message on a MQTT topic", tag = "producer,mqtt",
     recommended = {MqttConnection.class})
 @DisplayOrder(order = {"destination", "qos", "retained", "timeToWait"})
