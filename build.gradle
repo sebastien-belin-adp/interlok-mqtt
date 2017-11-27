@@ -5,10 +5,12 @@ ext {
   repoUsername = project.hasProperty("repoUsername") ? project.getProperty("repoUsername") : "unknown"
   repoPassword = project.hasProperty("repoPassword") ? project.getProperty("repoPassword") : "unknown"
   defaultNexusRepo = project.hasProperty("defaultNexusRepo") ? project.getProperty("defaultNexusRepo") : "https://repo1.maven.org/maven2/"
+  interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-API/'
+  interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-Common/'
   componentName = "Interlok MQTT"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
-  slf4jVersion = "1.7.12"
+  slf4jVersion = "1.7.25"
 }
 
 // Apply the java plugin to add support for Java
@@ -16,7 +18,7 @@ apply plugin: "java"
 apply plugin: "maven"
 apply plugin: "maven-publish"
 apply plugin: "eclipse"
-// apply plugin: "jacoco"
+apply plugin: "jacoco"
 
 sourceCompatibility = 1.7
 group   = "com.adaptris"
@@ -32,6 +34,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 repositories {
+  maven { url "$defaultNexusRepo" }
   maven { url "https://development.adaptris.net/nexus/content/repositories/releases/" }
   maven { url "https://development.adaptris.net/nexus/content/groups/public/" }
   maven {
@@ -56,7 +59,6 @@ repositories {
       password repoPassword
     }
   }
-  maven { url "$defaultNexusRepo" }
 }
 
 eclipse {
@@ -118,14 +120,19 @@ jar {
 
 javadoc {
   configure(options) {
-    links = [
-      "https://development.adaptris.net/javadocs/v3-snapshot/Interlok-API/",
-      "https://development.adaptris.net/javadocs/v3-snapshot/Interlok-Common/",
-    ]
+      links = [
+        interlokJavadocs,
+        interlokCommonJavadocs,
+      ]
 
     taglets = ["com.adaptris.taglet.ConfigTaglet", "com.adaptris.taglet.LicenseTaglet"]
     options.addStringOption "tagletpath", configurations.javadoc.asPath
   }
+}
+
+
+jacoco {
+  toolVersion="0.7.7.201606060606"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -166,10 +173,10 @@ publishing {
   publications {
     mavenCustom(MavenPublication) {
       from components.java
-      
+
       artifact javadocJar { classifier "javadoc" }
       artifact examplesJar { classifier "examples" }
-      
+
       pom.withXml {
         asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
         // asNode().appendNode("url", "https://development.adaptris.net/docs/Interlok/mqtt-integration.html")
