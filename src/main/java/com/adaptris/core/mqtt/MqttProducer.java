@@ -46,7 +46,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("mqtt-producer")
 @AdapterComponent
 @ComponentProfile(summary = "Place message on a MQTT topic", tag = "producer,mqtt",
-    recommended = {MqttConnection.class})
+    recommended = {MqttConnection.class}, since = "3.5.0")
 @DisplayOrder(order = {"destination", "qos", "retained", "timeToWait"})
 public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedComponent*/ {
 
@@ -65,7 +65,6 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
   @AdvancedConfig
   private TimeInterval timeToWait;
 
-  private transient final Logger log = LoggerFactory.getLogger(this.getClass());
   private transient MqttClient mqttClient;
 
   public MqttProducer() {}

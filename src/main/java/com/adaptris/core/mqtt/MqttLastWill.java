@@ -19,7 +19,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  */
 @XStreamAlias("mqtt-last-will")
 @AdapterComponent
-@ComponentProfile(summary = "MQTT connection last will", tag = "connections,mqtt")
+@ComponentProfile(summary = "MQTT connection last will", tag = "connections,mqtt", since = "3.5.0")
 @DisplayOrder(order = {"topic", "qos", "retained", "payload", "payloadCharEncoding"})
 public class MqttLastWill {
 
