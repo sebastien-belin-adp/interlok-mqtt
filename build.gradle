@@ -1,6 +1,6 @@
 ext {
-  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.6-SNAPSHOT"
-  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.6-SNAPSHOT"
+  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.7-SNAPSHOT"
+  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.7-SNAPSHOT"
   mavenPublishUrl = project.hasProperty("mavenPublishUrl") ? project.getProperty("mavenPublishUrl") : "https://development.adaptris.net/nexus/content/repositories/snapshots"
   repoUsername = project.hasProperty("repoUsername") ? project.getProperty("repoUsername") : "unknown"
   repoPassword = project.hasProperty("repoPassword") ? project.getProperty("repoPassword") : "unknown"
@@ -90,7 +90,7 @@ dependencies {
   compile "javax.transaction:jta:1.1"
   compile "org.apache.httpcomponents:httpclient:4.4.1"
   compile "org.apache.httpcomponents:httpcore:4.4.1"
-  compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0"
+  compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0"
 
   runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
   runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
@@ -99,9 +99,9 @@ dependencies {
   testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
   testCompile ("com.adaptris:adp-licensing-stub:$adpCoreVersion") { changing= true}
   testCompile "log4j:log4j:1.2.17"
-  testCompile "org.mockito:mockito-all:1.9.5"
-  testCompile "org.apache.activemq:activemq-broker:5.10.0"
-  testCompile "org.apache.activemq:activemq-mqtt:5.10.0"
+  testCompile "org.mockito:mockito-all:1.10.9"
+  testCompile "org.apache.activemq:activemq-broker:5.15.2"
+  testCompile "org.apache.activemq:activemq-mqtt:5.15.2"
 
   javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
 }
@@ -132,7 +132,7 @@ javadoc {
 
 
 jacoco {
-  toolVersion="0.7.7.201606060606"
+  toolVersion="0.7.9"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

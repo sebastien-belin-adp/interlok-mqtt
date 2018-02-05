@@ -37,7 +37,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @XStreamAlias("mqtt-consumer")
 @AdapterComponent
 @ComponentProfile(summary = "Listen for MQTT messages on the specified topic", tag = "consumer,mqtt",
-    recommended = {MqttConnection.class})
+    recommended = {MqttConnection.class}, since = "3.5.0")
 @DisplayOrder(order = {"destination", "timeToWait"})
 public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*LicensedComponent,*/ MqttCallbackExtended {
 
@@ -45,7 +45,6 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
   @AdvancedConfig
   private TimeInterval timeToWait;
 
-  private transient final Logger log = LoggerFactory.getLogger(this.getClass());
   private transient MqttClient mqttClient;
   private transient String topic;
 
