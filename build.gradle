@@ -178,6 +178,7 @@ publishing {
       artifact examplesJar { classifier "examples" }
 
       pom.withXml {
+        asNode().appendNode("name", componentName)
         asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
         // asNode().appendNode("url", "https://development.adaptris.net/docs/Interlok/mqtt-integration.html")
         // asNode().appendNode("logo", "/interlok/img/mqtt.png")
