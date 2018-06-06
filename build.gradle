@@ -37,28 +37,7 @@ repositories {
   maven { url "$defaultNexusRepo" }
   maven { url "https://development.adaptris.net/nexus/content/repositories/releases/" }
   maven { url "https://development.adaptris.net/nexus/content/groups/public/" }
-  maven {
-    url "https://development.adaptris.net/nexus/content/repositories/thirdparty/"
-    credentials {
-      username repoUsername
-      password repoPassword
-    }
-  }
   maven { url "https://development.adaptris.net/nexus/content/groups/adaptris-snapshots/" }
-  maven {
-    url "https://development.adaptris.net/nexus/content/repositories/adaptris-private-snapshots/"
-    credentials {
-      username repoUsername
-      password repoPassword
-    }
-  }
-  maven {
-    url "https://development.adaptris.net/nexus/content/repositories/adaptris-private-releases/"
-    credentials {
-      username repoUsername
-      password repoPassword
-    }
-  }
 }
 
 eclipse {
