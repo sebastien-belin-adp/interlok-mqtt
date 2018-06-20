@@ -61,7 +61,6 @@ configurations.all {
 dependencies {
   compile ("com.adaptris:adp-core:$adpCoreVersion") { changing= true}
   compile ("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
-  compile ("com.adaptris:adp-licensing:$adpCoreVersion") { changing= true}
 
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
@@ -150,6 +149,8 @@ task generateVersion {
     ant.propertyfile(file: versionFile) {
       entry(key: "component.name", value: componentName)
       entry(key: "build.version", value: releaseVersion)
+      entry(key: 'groupId', value: "com.adaptris")
+      entry(key: 'artifactId', value: project.name)
       entry(key: "build.date", value: new Date().format("yyyy-MM-dd"))
     }
   }
@@ -171,7 +172,7 @@ publishing {
         def properties = asNode().appendNode("properties")
         properties.appendNode("externalUrl", "http://mqtt.org")
         properties.appendNode("notes", "Requires additional jars not automatically delivered")
-        properties.appendNode("license", "true")
+        properties.appendNode("license", "false")
         properties.appendNode("target", "3.5.0+")
         properties.appendNode("tags", "MQTT")
         properties.appendNode("javadocs", "https://development.adaptris.net/javadocs/latest-stable/optional/mqtt/")
