@@ -1,6 +1,6 @@
 ext {
-  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.7-SNAPSHOT"
-  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.7-SNAPSHOT"
+  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.8-SNAPSHOT"
+  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.8-SNAPSHOT"
   mavenPublishUrl = project.hasProperty("mavenPublishUrl") ? project.getProperty("mavenPublishUrl") : "https://development.adaptris.net/nexus/content/repositories/snapshots"
   repoUsername = project.hasProperty("repoUsername") ? project.getProperty("repoUsername") : "unknown"
   repoPassword = project.hasProperty("repoPassword") ? project.getProperty("repoPassword") : "unknown"
@@ -59,8 +59,8 @@ configurations.all {
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-  compile ("com.adaptris:adp-core:$adpCoreVersion") { changing= true}
-  compile ("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
+  compile ("com.adaptris:interlok-core:$adpCoreVersion") { changing= true}
+  compile ("com.adaptris:interlok-core-apt:$adpCoreVersion") { changing= true}
 
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
@@ -73,13 +73,13 @@ dependencies {
   runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
   testCompile "junit:junit:4.11"
-  testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
+  testCompile ("com.adaptris:interlok-stubs:$adpCoreVersion") { changing= true}
   testCompile "log4j:log4j:1.2.17"
   testCompile "org.mockito:mockito-all:1.10.9"
   testCompile "org.apache.activemq:activemq-broker:5.15.2"
   testCompile "org.apache.activemq:activemq-mqtt:5.15.2"
 
-  javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
+  javadoc("com.adaptris:interlok-core-apt:$adpCoreVersion") { changing= true}
 }
 
 jar {
