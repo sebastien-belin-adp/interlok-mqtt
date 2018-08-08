@@ -64,7 +64,7 @@ dependencies {
 
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
-  compile "com.atomikos:transactions-jms:3.8.0"
+  // compileOnly "com.atomikos:transactions-jms:3.8.0"
   compile "javax.transaction:jta:1.1"
   compile "org.apache.httpcomponents:httpclient:4.5.6"
   compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0"
