@@ -1,6 +1,6 @@
 ext {
-  adpCoreVersion = project.hasProperty("adpCoreVersion") ? project.getProperty("adpCoreVersion") : "3.7-SNAPSHOT"
-  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.7-SNAPSHOT"
+  interlokCoreVersion = project.hasProperty("interlokCoreVersion") ? project.getProperty("interlokCoreVersion") : "3.8-SNAPSHOT"
+  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.8-SNAPSHOT"
   mavenPublishUrl = project.hasProperty("mavenPublishUrl") ? project.getProperty("mavenPublishUrl") : "https://development.adaptris.net/nexus/content/repositories/snapshots"
   repoUsername = project.hasProperty("repoUsername") ? project.getProperty("repoUsername") : "unknown"
   repoPassword = project.hasProperty("repoPassword") ? project.getProperty("repoPassword") : "unknown"
@@ -20,7 +20,7 @@ apply plugin: "maven-publish"
 apply plugin: "eclipse"
 apply plugin: "jacoco"
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 group   = "com.adaptris"
 version = releaseVersion
 def versionDir = "$buildDir/version"
@@ -34,6 +34,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 repositories {
+  jcenter()
   maven { url "$defaultNexusRepo" }
   maven { url "https://development.adaptris.net/nexus/content/repositories/releases/" }
   maven { url "https://development.adaptris.net/nexus/content/groups/public/" }
@@ -49,8 +50,16 @@ eclipse {
 
 configurations {
   javadoc {}
-  all*.exclude group: "c3p0"
-  all*.exclude group: "commons-logging"
+  all*.exclude group: 'c3p0'
+  all*.exclude group: 'commons-logging'
+  all*.exclude group: 'javamail'
+  all*.exclude group: 'javax.mail', module: 'mail'
+  all*.exclude group: 'org.glassfish.hk2.external'
+  all*.exclude group: 'xalan', module: 'xalan'
+  all*.exclude group: 'net.sf.saxon', module: 'saxon'
+  all*.exclude group: 'org.codehaus.woodstox'
+  all*.exclude group: 'org.eclipse.jetty.orbit', module: 'javax.mail.glassfish'
+  all*.exclude group: 'com.fasterxml.woodstox'
 }
 
 configurations.all {
@@ -59,27 +68,29 @@ configurations.all {
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-  compile ("com.adaptris:adp-core:$adpCoreVersion") { changing= true}
-  compile ("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
+  compile ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
+  compile ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
-  compile "com.atomikos:transactions-jms:3.8.0"
+  // compileOnly "com.atomikos:transactions-jms:3.8.0"
   compile "javax.transaction:jta:1.1"
-  compile "org.apache.httpcomponents:httpclient:4.5.2"
+  compile "org.apache.httpcomponents:httpclient:4.5.6"
   compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0"
 
+  annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
+  
   runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
   runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
-  testCompile "junit:junit:4.11"
-  testCompile ("com.adaptris:adp-stubs:$adpCoreVersion") { changing= true}
+  testCompile "junit:junit:4.12"
+  testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
   testCompile "log4j:log4j:1.2.17"
-  testCompile "org.mockito:mockito-all:1.10.9"
-  testCompile "org.apache.activemq:activemq-broker:5.15.2"
-  testCompile "org.apache.activemq:activemq-mqtt:5.15.2"
+  testCompile "org.mockito:mockito-all:1.10.19"
+  testCompile "org.apache.activemq:activemq-broker:5.15.4"
+  testCompile "org.apache.activemq:activemq-mqtt:5.15.4"
 
-  javadoc("com.adaptris:adp-core-apt:$adpCoreVersion") { changing= true}
+  javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 }
 
 jar {
@@ -108,7 +119,7 @@ javadoc {
 
 
 jacoco {
-  toolVersion="0.8.0"
+  toolVersion="0.8.1"
 }
 
 jacocoTestReport {
@@ -149,7 +160,7 @@ task generateVersion {
     ant.propertyfile(file: versionFile) {
       entry(key: "component.name", value: componentName)
       entry(key: "build.version", value: releaseVersion)
-      entry(key: 'groupId', value: "com.adaptris")
+      entry(key: 'groupId', value: project.group)
       entry(key: 'artifactId', value: project.name)
       entry(key: "build.date", value: new Date().format("yyyy-MM-dd"))
     }
@@ -175,7 +186,6 @@ publishing {
         properties.appendNode("license", "false")
         properties.appendNode("target", "3.5.0+")
         properties.appendNode("tags", "MQTT")
-        properties.appendNode("javadocs", "https://development.adaptris.net/javadocs/latest-stable/optional/mqtt/")
       }
     }
   }
