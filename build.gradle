@@ -35,7 +35,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 repositories {
-  jcenter()
+  mavenCentral()
   maven { url "$defaultNexusRepo" }
   maven { url "https://development.adaptris.net/nexus/content/repositories/releases/" }
   maven { url "https://development.adaptris.net/nexus/content/groups/public/" }
