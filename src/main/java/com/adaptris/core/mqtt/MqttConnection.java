@@ -282,8 +282,8 @@ public class MqttConnection extends AdaptrisConnectionImp /*implements LicensedC
 
   public void stopAsyncClientConnection(MqttAsyncClient mqttAsyncClient) {
     try {
-      log.debug("Disconnect Async Mqtt Client [{}]", mqttAsyncClient.getClientId());
       if (mqttAsyncClient != null && mqttAsyncClient.isConnected()) {
+        log.debug("Disconnect Async Mqtt Client [{}]", mqttAsyncClient.getClientId());
         mqttAsyncClient.disconnect();
       }
     } catch (MqttException mqtte) {
