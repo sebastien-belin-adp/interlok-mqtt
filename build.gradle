@@ -11,7 +11,7 @@ ext {
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
   slf4jVersion = "1.7.25"
-  activeMqVersion = "5.15.6"
+  activeMqVersion = "5.15.7"
 }
 
 // Apply the java plugin to add support for Java
