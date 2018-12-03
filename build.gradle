@@ -1,17 +1,19 @@
 ext {
-  interlokCoreVersion = project.hasProperty("interlokCoreVersion") ? project.getProperty("interlokCoreVersion") : "3.8-SNAPSHOT"
-  releaseVersion = project.hasProperty("releaseVersion") ? project.getProperty("releaseVersion") : "3.8-SNAPSHOT"
-  mavenPublishUrl = project.hasProperty("mavenPublishUrl") ? project.getProperty("mavenPublishUrl") : "https://development.adaptris.net/nexus/content/repositories/snapshots"
-  repoUsername = project.hasProperty("repoUsername") ? project.getProperty("repoUsername") : "unknown"
-  repoPassword = project.hasProperty("repoPassword") ? project.getProperty("repoPassword") : "unknown"
-  defaultNexusRepo = project.hasProperty("defaultNexusRepo") ? project.getProperty("defaultNexusRepo") : "https://repo1.maven.org/maven2/"
-  interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-API/'
-  interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-Common/'
+  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.8-SNAPSHOT'
+  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.8-SNAPSHOT'
+  nexusBaseUrl = project.hasProperty('nexusBaseUrl') ? project.getProperty('nexusBaseUrl') : 'https://nexus.adaptris.net/nexus'
+  mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : nexusBaseUrl + '/content/repositories/snapshots'
+  javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
+  repoUsername = project.hasProperty('repoUsername') ? project.getProperty('repoUsername') : 'unknown'
+  repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : 'unknown'
+  defaultNexusRepo = project.hasProperty('defaultNexusRepo') ? project.getProperty('defaultNexusRepo') : 'https://repo1.maven.org/maven2/'
+  interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-core/" + interlokCoreVersion
+  interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-common/" + interlokCoreVersion
   componentName = "Interlok MQTT"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
   slf4jVersion = "1.7.25"
-  activeMqVersion = "5.15.6"
+  activeMqVersion = "5.15.8"
 }
 
 // Apply the java plugin to add support for Java
@@ -35,11 +37,11 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 repositories {
-  jcenter()
+  mavenCentral()
   maven { url "$defaultNexusRepo" }
-  maven { url "https://development.adaptris.net/nexus/content/repositories/releases/" }
-  maven { url "https://development.adaptris.net/nexus/content/groups/public/" }
-  maven { url "https://development.adaptris.net/nexus/content/groups/adaptris-snapshots/" }
+  maven { url "$nexusBaseUrl/content/groups/public" }
+  maven { url "$nexusBaseUrl/content/repositories/snapshots" }
+  maven { url "$nexusBaseUrl/content/repositories/releases" }
 }
 
 eclipse {
@@ -79,7 +81,7 @@ dependencies {
   compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.0"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
-  
+
   runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
   runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
@@ -178,7 +180,7 @@ publishing {
       pom.withXml {
         asNode().appendNode("name", componentName)
         asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
-        // asNode().appendNode("url", "https://development.adaptris.net/docs/Interlok/mqtt-integration.html")
+        // asNode().appendNode("url", "https://interlok.adaptris.net/interlok-docs/mqtt-integration.html")
         // asNode().appendNode("logo", "/interlok/img/mqtt.png")
         def properties = asNode().appendNode("properties")
         properties.appendNode("externalUrl", "http://mqtt.org")
