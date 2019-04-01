@@ -84,7 +84,7 @@ dependencies {
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
   compile "javax.transaction:jta:1.1"
-  compile "org.apache.httpcomponents:httpclient:4.5.7"
+  compile "org.apache.httpcomponents:httpclient:4.5.8"
   compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
