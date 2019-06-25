@@ -5,13 +5,13 @@ plugins {
   id 'jacoco'
   id 'eclipse'
   // Manage optional dependencies in maven pom.
-  id 'nebula.optional-base' version '4.0.1'
-  id 'com.github.spotbugs' version '1.6.10'
+  id 'nebula.optional-base' version '5.0.3'
+  id 'com.github.spotbugs' version '2.0.0'
 }
 
 ext {
-  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.8-SNAPSHOT'
-  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.8-SNAPSHOT'
+  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.9-SNAPSHOT'
+  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.9-SNAPSHOT'
   nexusBaseUrl = project.hasProperty('nexusBaseUrl') ? project.getProperty('nexusBaseUrl') : 'https://nexus.adaptris.net/nexus'
   mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : nexusBaseUrl + '/content/repositories/snapshots'
   javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
@@ -46,8 +46,7 @@ repositories {
   mavenCentral()
   maven { url "$defaultNexusRepo" }
   maven { url "$nexusBaseUrl/content/groups/public" }
-  maven { url "$nexusBaseUrl/content/repositories/snapshots" }
-  maven { url "$nexusBaseUrl/content/repositories/releases" }
+  maven { url "$nexusBaseUrl/content/groups/interlok" }
 }
 
 eclipse {
@@ -84,7 +83,7 @@ dependencies {
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
   compile "javax.transaction:jta:1.1"
-  compile "org.apache.httpcomponents:httpclient:4.5.8"
+  compile "org.apache.httpcomponents:httpclient:4.5.9"
   compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
@@ -128,7 +127,7 @@ javadoc {
 
 
 jacoco {
-  toolVersion="0.8.1"
+  toolVersion="0.8.3"
 }
 
 jacocoTestReport {
