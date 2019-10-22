@@ -5,8 +5,13 @@ extraction:
         version: 5.2.1
 
 path_classifiers:
-  test:
-  - "src/test"
   docs:
-  - "LICENSE*"
-  - "*.md"
+    - "LICENSE*"
+    - "*.md"
+    - "*.html"
+  ci:
+    - "appveyor.yml"
+    - ".codecov.yml"
+    - ".travis.yml"
+    - ".circleci"
+    - ".dependabot"

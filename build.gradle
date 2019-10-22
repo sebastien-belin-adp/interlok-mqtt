@@ -25,8 +25,8 @@ ext {
   componentName = "Interlok MQTT"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
-  slf4jVersion = "1.7.27"
-  activeMqVersion = "5.15.9"
+  slf4jVersion = "1.7.28"
+  activeMqVersion = "5.15.10"
 }
 
 sourceCompatibility = 1.8
@@ -83,8 +83,8 @@ dependencies {
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
   compile "javax.transaction:jta:1.1"
-  compile "org.apache.httpcomponents:httpclient:4.5.9"
-  compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1"
+  compile "org.apache.httpcomponents:httpclient:4.5.10"
+  compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.2"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 
