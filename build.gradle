@@ -26,7 +26,7 @@ ext {
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
   slf4jVersion = "1.7.29"
-  activeMqVersion = "5.15.10"
+  activeMqVersion = "5.15.11"
 }
 
 sourceCompatibility = 1.8
