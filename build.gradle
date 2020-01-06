@@ -25,7 +25,7 @@ ext {
   componentName = "Interlok MQTT"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
-  slf4jVersion = "1.7.29"
+  slf4jVersion = "1.7.30"
   activeMqVersion = "5.15.11"
 }
 
