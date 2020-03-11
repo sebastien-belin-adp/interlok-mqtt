@@ -10,8 +10,8 @@ plugins {
 }
 
 ext {
-  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.9-SNAPSHOT'
-  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.9-SNAPSHOT'
+  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.10-SNAPSHOT'
+  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.10-SNAPSHOT'
   nexusBaseUrl = project.hasProperty('nexusBaseUrl') ? project.getProperty('nexusBaseUrl') : 'https://nexus.adaptris.net/nexus'
   mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : nexusBaseUrl + '/content/repositories/snapshots'
   javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
@@ -25,7 +25,7 @@ ext {
   componentName = "Interlok MQTT"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
-  slf4jVersion = "1.7.29"
+  slf4jVersion = "1.7.30"
   activeMqVersion = "5.15.11"
 }
 
@@ -101,7 +101,7 @@ dependencies {
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
   compile "javax.transaction:jta:1.1"
-  compile "org.apache.httpcomponents:httpclient:4.5.10"
+  compile "org.apache.httpcomponents:httpclient:4.5.11"
   compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.2"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
@@ -109,7 +109,7 @@ dependencies {
   runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
   runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
-  testCompile "junit:junit:4.12"
+  testCompile "junit:junit:4.13"
   testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
   testCompile "log4j:log4j:1.2.17"
   testCompile "org.mockito:mockito-all:1.10.19"

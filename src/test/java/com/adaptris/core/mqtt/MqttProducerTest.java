@@ -17,7 +17,7 @@
 package com.adaptris.core.mqtt;
 
 import static com.adaptris.core.jms.JmsProducerCase.assertMessages;
-
+import org.junit.Test;
 import com.adaptris.core.ConfiguredConsumeDestination;
 import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.ProducerCase;
@@ -27,10 +27,11 @@ import com.adaptris.core.stubs.MockMessageListener;
 
 public class MqttProducerTest extends ProducerCase {
 
-  public MqttProducerTest(String params) {
-    super(params);
+  public MqttProducerTest() {
+    super();
   }
 
+  @Test
   public void testSingleProduce() throws Exception {
     EmbeddedActiveMqMqtt activeMqBroker = new EmbeddedActiveMqMqtt();
     String topicName = getTopicName();
@@ -82,5 +83,8 @@ public class MqttProducerTest extends ProducerCase {
     return result;
   }
 
-
+  @Override
+  public boolean isAnnotatedForJunit4() {
+    return true;
+  }
 }

@@ -17,14 +17,13 @@
 package com.adaptris.core.mqtt;
 
 import java.util.Properties;
-
 import org.junit.Assert;
 import org.junit.Test;
-
+import com.adaptris.core.BaseCase;
 import com.adaptris.security.exc.PasswordException;
 
 
-public class SslPropertyTest {
+public class SslPropertyTest extends BaseCase {
 
   @Test
   public void testProtocol() throws PasswordException {
@@ -133,4 +132,8 @@ public class SslPropertyTest {
     Assert.assertEquals(expectedValue, sslContextProperties.getProperty(key));
   }
 
+  @Override
+  public boolean isAnnotatedForJunit4() {
+    return true;
+  }
 }

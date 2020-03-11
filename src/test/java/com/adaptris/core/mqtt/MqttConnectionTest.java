@@ -19,17 +19,16 @@ package com.adaptris.core.mqtt;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.junit.Ignore;
 import org.junit.Test;
-
+import com.adaptris.core.BaseCase;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.KeyValuePairSet;
 
-public class MqttConnectionTest {
+public class MqttConnectionTest extends BaseCase {
 
   @Test
   public void testInit() throws Exception {
@@ -106,4 +105,8 @@ public class MqttConnectionTest {
     return mqttConnection;
   }
 
+  @Override
+  public boolean isAnnotatedForJunit4() {
+    return true;
+  }
 }

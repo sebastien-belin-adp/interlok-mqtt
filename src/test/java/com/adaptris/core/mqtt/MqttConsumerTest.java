@@ -17,7 +17,7 @@
 package com.adaptris.core.mqtt;
 
 import static com.adaptris.core.jms.JmsProducerCase.assertMessages;
-
+import org.junit.Test;
 import com.adaptris.core.ConfiguredConsumeDestination;
 import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.ConsumerCase;
@@ -27,10 +27,11 @@ import com.adaptris.core.stubs.MockMessageListener;
 
 public class MqttConsumerTest extends ConsumerCase {
 
-  public MqttConsumerTest(String params) {
-    super(params);
+  public MqttConsumerTest() {
+    super();
   }
 
+  @Test
   public void testSingleConsume() throws Exception {
     EmbeddedActiveMqMqtt activeMqBroker = new EmbeddedActiveMqMqtt();
     String topicName = getTopicName();
@@ -52,6 +53,7 @@ public class MqttConsumerTest extends ConsumerCase {
     }
   }
 
+  @Test
   public void testSingleConsumeRetainedMessage() throws Exception {
     EmbeddedActiveMqMqtt activeMqBroker = new EmbeddedActiveMqMqtt();
     String topicName = getTopicName();
@@ -86,6 +88,7 @@ public class MqttConsumerTest extends ConsumerCase {
     }
   }
 
+  @Test
   public void testSingleConsumeRetainedMessageFalse() throws Exception {
     EmbeddedActiveMqMqtt activeMqBroker = new EmbeddedActiveMqMqtt();
     String topicName = getTopicName();
@@ -149,4 +152,10 @@ public class MqttConsumerTest extends ConsumerCase {
     StandaloneConsumer result = new StandaloneConsumer(conn, mqttConsumer);
     return result;
   }
+  
+  @Override
+  public boolean isAnnotatedForJunit4() {
+    return true;
+  }
+  
 }
