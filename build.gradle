@@ -115,7 +115,13 @@ dependencies {
   runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
   testCompile "junit:junit:4.13"
-  testCompile ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true}
+  testCompile "org.slf4j:slf4j-simple:$slf4jVersion"
+  // exclude any log4j dependencies so that we can just use slf4j simple.
+  // works around INTERLOk-3233
+  testCompile "com.adaptris:interlok-stubs:$interlokCoreVersion", {
+    changing= true
+    exclude group: "org.apache.logging.log4j"
+  }
   testCompile "log4j:log4j:1.2.17"
   testCompile "org.mockito:mockito-all:1.10.19"
   testCompile "org.apache.activemq:activemq-broker:$activeMqVersion"
