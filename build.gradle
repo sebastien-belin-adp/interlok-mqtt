@@ -108,6 +108,7 @@ dependencies {
 
   compile "javax.transaction:jta:1.1"
   compile "org.apache.httpcomponents:httpclient:4.5.12"
+  compile "commons-codec:commons-codec:1.13"
   compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
