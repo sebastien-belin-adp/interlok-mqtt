@@ -240,6 +240,7 @@ publishing {
         properties.appendNode("license", "false")
         properties.appendNode("target", "3.5.0+")
         properties.appendNode("tags", "MQTT")
+        properties.appendNode("repository", "https://github.com/adaptris/interlok-mqtt")
       }
     }
   }
