@@ -102,7 +102,7 @@ configurations.all {
 // In this section you declare the dependencies for your production and test code
 dependencies {
   compile ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
-  compile ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
+  compile ("com.adaptris:interlok-common:$interlokCoreVersion") { changing= true}
 
   compile "org.slf4j:slf4j-api:$slf4jVersion"
 
@@ -113,8 +113,9 @@ dependencies {
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 
-  runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
-  runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+  // specified by interlok-common in its compile scope.
+  // runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
+  // runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 
   testCompile "junit:junit:4.13"
   testCompile "org.slf4j:slf4j-simple:$slf4jVersion"
@@ -124,7 +125,7 @@ dependencies {
     changing= true
     exclude group: "org.apache.logging.log4j"
   }
-  testCompile "log4j:log4j:1.2.17"
+  // testCompile "log4j:log4j:1.2.17"
   testCompile "org.mockito:mockito-all:1.10.19"
   testCompile "org.apache.activemq:activemq-broker:$activeMqVersion"
   testCompile "org.apache.activemq:activemq-mqtt:$activeMqVersion"
