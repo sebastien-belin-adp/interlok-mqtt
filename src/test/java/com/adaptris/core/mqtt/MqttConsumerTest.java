@@ -18,7 +18,6 @@ package com.adaptris.core.mqtt;
 
 import static com.adaptris.core.jms.JmsProducerCase.assertMessages;
 import org.junit.Test;
-import com.adaptris.core.ConfiguredConsumeDestination;
 import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.ConsumerCase;
 import com.adaptris.core.StandaloneConsumer;
@@ -128,7 +127,7 @@ public class MqttConsumerTest extends ConsumerCase {
   }
 
   private StandaloneConsumer buildStandaloneMqttConsumer(EmbeddedActiveMqMqtt activeMqBroker, String topicName) {
-    MqttConsumer mqttConsumer = new MqttConsumer(new ConfiguredConsumeDestination(topicName));
+    MqttConsumer mqttConsumer = new MqttConsumer().withTopic(topicName);
     StandaloneConsumer standaloneConsumer = new StandaloneConsumer(activeMqBroker.getMqttConnection(), mqttConsumer);
     return standaloneConsumer;
   }
@@ -142,9 +141,7 @@ public class MqttConsumerTest extends ConsumerCase {
 
   @Override
   protected Object retrieveObjectForSampleConfig() {
-    MqttConsumer mqttConsumer = new MqttConsumer();
-    mqttConsumer.setDestination(new ConfiguredConsumeDestination(getTopicName()));
-
+    MqttConsumer mqttConsumer = new MqttConsumer().withTopic(getTopicName());
     MqttConnection conn = new MqttConnection();
     conn.setServerUri("tcp://localhost:1883");
     conn.setUsername("My Access Key");
@@ -152,10 +149,10 @@ public class MqttConsumerTest extends ConsumerCase {
     StandaloneConsumer result = new StandaloneConsumer(conn, mqttConsumer);
     return result;
   }
-  
+
   @Override
   public boolean isAnnotatedForJunit4() {
     return true;
   }
-  
+
 }
