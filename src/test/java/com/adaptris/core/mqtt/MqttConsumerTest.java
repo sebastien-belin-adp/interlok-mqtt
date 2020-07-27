@@ -18,7 +18,6 @@ package com.adaptris.core.mqtt;
 
 import static com.adaptris.core.jms.JmsProducerCase.assertMessages;
 import org.junit.Test;
-import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.ConsumerCase;
 import com.adaptris.core.StandaloneConsumer;
 import com.adaptris.core.StandaloneProducer;
@@ -133,7 +132,7 @@ public class MqttConsumerTest extends ConsumerCase {
   }
 
   private StandaloneProducer buildStandaloneMqttProducer(EmbeddedActiveMqMqtt activeMqBroker, String topicName, boolean retained) {
-    MqttProducer mqttProducer = new MqttProducer(new ConfiguredProduceDestination(topicName));
+    MqttProducer mqttProducer = new MqttProducer().withTopic(topicName);
     mqttProducer.setRetained(retained);
     StandaloneProducer standaloneProducer = new StandaloneProducer(activeMqBroker.getMqttConnection(), mqttProducer);
     return standaloneProducer;

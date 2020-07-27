@@ -100,7 +100,7 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements MqttCall
 
   @Override
   public void prepare() throws CoreException {
-    DestinationHelper.logConsumeDestinationWarning(destinationWarningLogged,
+    DestinationHelper.logWarningIfNotNull(destinationWarningLogged,
         () -> destinationWarningLogged = true, getDestination(),
         "{} uses destination, use topic instead", LoggingHelper.friendlyName(this));
     DestinationHelper.mustHaveEither(getTopic(), getDestination());
