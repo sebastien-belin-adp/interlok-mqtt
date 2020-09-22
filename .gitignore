@@ -27,3 +27,4 @@ bin
 .interlok-mqtt
 .gradle
 gradle.properties
+src/main/generated

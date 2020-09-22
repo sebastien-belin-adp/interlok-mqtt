@@ -18,37 +18,42 @@ package com.adaptris.core.mqtt;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.AutoPopulated;
 import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.DisplayOrder;
+import com.adaptris.annotation.InputFieldHint;
+import com.adaptris.annotation.Removal;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageProducer;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ProduceException;
 import com.adaptris.core.ProduceOnlyProducerImp;
+import com.adaptris.core.util.DestinationHelper;
+import com.adaptris.core.util.LoggingHelper;
+import com.adaptris.interlok.util.Args;
 import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * {@link AdaptrisMessageProducer} implementation that sends messages to a MQTT topic.
  * <p>
  * MQTT topic receives only text therefore only the message payload is sent as a string.
  * </p>
- * 
+ *
  * @config mqtt-producer
  * @license STANDARD
  * @since 3.5.0
@@ -57,8 +62,9 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @AdapterComponent
 @ComponentProfile(summary = "Place message on a MQTT topic", tag = "producer,mqtt",
     recommended = {MqttConnection.class}, since = "3.5.0")
-@DisplayOrder(order = {"destination", "qos", "retained", "timeToWait"})
-public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedComponent*/ {
+@DisplayOrder(order = {"topic", "qos", "retained", "timeToWait"})
+@NoArgsConstructor
+public class MqttProducer extends ProduceOnlyProducerImp {
 
   private transient Map<String, String> cachedTopicURLs = new ConcurrentHashMap<String, String>();
 
@@ -74,26 +80,34 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
   @Valid
   @AdvancedConfig
   private TimeInterval timeToWait;
+  /**
+   * The destination ressolves to the MQTT Topic
+   *
+   */
+  @Getter
+  @Setter
+  @Deprecated
+  @Valid
+  @Removal(version = "4.0.0", message = "Use 'topic' instead")
+  private ProduceDestination destination;
+
+  /**
+   * The MQTT Topic
+   *
+   */
+  @InputFieldHint(expression = true)
+  @Getter
+  @Setter
+  // Needs to be @NotBlank when destination is removed.
+  private String topic;
+
+  private transient boolean destWarning;
 
   private transient MqttClient mqttClient;
 
-  public MqttProducer() {}
-
-  public MqttProducer(ProduceDestination destination) {
-    this();
-    setDestination(destination);
-  }
-
   @Override
   public void init() throws CoreException {
-    if(retrieveConnection(MqttConnection.class) == null) {
-      throw new CoreException("PahoMqttConnection is required");
-    }
-
-    if(getDestination() == null) {
-      throw new CoreException("Destination is required");
-    }
-
+    Args.notNull(retrieveConnection(MqttConnection.class), "mqtt-connection");
     mqttClient = getMqtt();
     if (timeToWait != null) {
       long timeToWaitInMillis = timeToWait.toMilliseconds();
@@ -130,11 +144,9 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
   }
 
   @Override
-  public void produce(AdaptrisMessage msg, ProduceDestination destination) throws ProduceException {
+  protected void doProduce(AdaptrisMessage msg, String endpoint) throws ProduceException {
     try {
-      // Resolve the Topic URL from the destination and the message (in case of metadata destinations for example)
-      String topic = resolveTopic(msg);
-
+      String topic = resolveTopic(endpoint);
       MqttMessage sendMessageRequest = new MqttMessage(encode(msg));
       applyExtraOptions(sendMessageRequest);
       log.debug("Publish message to topic [{}]", topic);
@@ -150,12 +162,8 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
     sendMessageRequest.setRetained(retained);
   }
 
-  private String resolveTopic(AdaptrisMessage msg) throws CoreException {
-    // Get destination (possibly from message)
-    final String topicName = getDestination().getDestination(msg);
-
+  private String resolveTopic(String topicName) throws CoreException {
     String topicURL = cachedTopicURLs.get(topicName);
-
     // It's not in the cache. Look up the topic url and cache it.
     if(topicURL == null) {
       topicURL = retrieveTopicFromMqtt(topicName);
@@ -171,17 +179,20 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
 
   @Override
   public void prepare() throws CoreException {
-    /*LicenseChecker.newChecker().checkLicense(this);*/
+    DestinationHelper.logWarningIfNotNull(destWarning, () -> destWarning = true, getDestination(),
+        "{} uses destination, use 'topic' instead", LoggingHelper.friendlyName(this));
+    DestinationHelper.mustHaveEither(getTopic(), getDestination());
   }
 
-  /*@Override
-  public boolean isEnabled(License license) {
-    return license.isEnabled(LicenseType.Standard);
-  }*/
+
+  @Override
+  public String endpoint(AdaptrisMessage msg) throws ProduceException {
+    return DestinationHelper.resolveProduceDestination(getTopic(), getDestination(), msg);
+  }
 
   /**
    * Returns the quality of service for this message.
-   * 
+   *
    * @return the quality of service to use, either 0, 1, or 2.
    */
   public int getQos() {
@@ -197,24 +208,24 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
    * note that if the server cannot process the message (for example, there is an authorization
    * problem), then an {@link MqttCallback#deliveryComplete(IMqttDeliveryToken)}. Also known as
    * "fire and forget".</li>
-   * 
+   *
    * <li>Quality of Service 1 - indicates that a message should be delivered at least once (one or
    * more times). The message can only be delivered safely if it can be persisted, so the
    * application must supply a means of persistence using <code>MqttConnectOptions</code>. If a
    * persistence mechanism is not specified, the message will not be delivered in the event of a
    * client failure. The message will be acknowledged across the network. This is the default QoS.</li>
-   * 
+   *
    * <li>Quality of Service 2 - indicates that a message should be delivered once. The message will
    * be persisted to disk, and will be subject to a two-phase acknowledgement across the network.
    * The message can only be delivered safely if it can be persisted, so the application must supply
    * a means of persistence using <code>MqttConnectOptions</code>. If a persistence mechanism is not
    * specified, the message will not be delivered in the event of a client failure.</li>
-   * 
+   *
    * If persistence is not configured, QoS 1 and 2 messages will still be delivered in the event of
    * a network or server problem as the client will hold state in memory. If the MQTT client is
    * shutdown or fails and persistence is not configured then delivery of QoS 1 and 2 messages can
    * not be maintained as client-side state will be lost.
-   * 
+   *
    * @param qos the "quality of service" to use. Set to 0, 1, 2.
    * @throws IllegalArgumentException if value of QoS is not 0, 1 or 2.
    * @throws IllegalStateException if this message cannot be edited
@@ -227,7 +238,7 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
    * Returns whether or not messages should be retained by the server. For messages received from
    * the server, this method returns whether or not the message was from a current publisher, or was
    * "retained" by the server as the last message published on the topic.
-   * 
+   *
    * @return <code>true</code> if the message should be retained by the server.
    */
   public boolean getRetained() {
@@ -238,7 +249,7 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
    * Whether or not the publish message should be retained by the messaging engine. Sending a
    * message with the retained set to <code>false</code> will clear the retained message from the
    * server. The default value is <code>false</code>
-   * 
+   *
    * @param retained whether or not the messaging engine should retain the message.
    * @throws IllegalStateException if this message cannot be edited
    */
@@ -264,12 +275,17 @@ public class MqttProducer extends ProduceOnlyProducerImp /*implements LicensedCo
    * action carries on running in the background until it completes. The timeout is used on methods
    * that block while the action is in progress.
    * </p>
-   * 
+   *
    * @param timeToWait before the action times out. A value or 0 will wait until the action finishes
    *        and not timeout.
    */
   public void setTimeToWait(TimeInterval timeToWait) {
     this.timeToWait = timeToWait;
+  }
+
+  public MqttProducer withTopic(String s) {
+    setTopic(s);
+    return this;
   }
 
 }

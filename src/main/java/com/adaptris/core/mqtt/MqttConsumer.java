@@ -17,29 +17,34 @@
 package com.adaptris.core.mqtt;
 
 import javax.validation.Valid;
-
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.DisplayOrder;
+import com.adaptris.annotation.Removal;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageConsumerImp;
 import com.adaptris.core.ConsumeDestination;
 import com.adaptris.core.CoreException;
+import com.adaptris.core.util.DestinationHelper;
+import com.adaptris.core.util.LoggingHelper;
+import com.adaptris.interlok.util.Args;
 import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * <p>
  * Paho MQTT implementation of <code>AdaptrisMessageConsumer</code>.
  * </p>
- * 
+ *
  * @config mqtt-consumer
  * @license STANDARD
  * @since 3.5.0
@@ -48,36 +53,44 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 @AdapterComponent
 @ComponentProfile(summary = "Listen for MQTT messages on the specified topic", tag = "consumer,mqtt",
     recommended = {MqttConnection.class}, since = "3.5.0")
-@DisplayOrder(order = {"destination", "timeToWait"})
-public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*LicensedComponent,*/ MqttCallbackExtended {
+@DisplayOrder(order = {"topic", "destination", "timeToWait"})
+@NoArgsConstructor
+public class MqttConsumer extends AdaptrisMessageConsumerImp implements MqttCallbackExtended {
 
   @Valid
   @AdvancedConfig
   private TimeInterval timeToWait;
 
+  /**
+   * The consume destination is the MQTT topic.
+   */
+  @Getter
+  @Setter
+  @Deprecated
+  @Valid
+  @Removal(version = "4.0.0", message = "Use 'topic' instead")
+  private ConsumeDestination destination;
+
+  /**
+   * The MQTT Topic
+   *
+   */
+  @Getter
+  @Setter
+  // Needs to be @NotBlank when destination is removed.
+  private String topic;
+
+
   private transient MqttClient mqttClient;
-  private transient String topic;
-
-  public MqttConsumer() {}
-
-  public MqttConsumer(ConsumeDestination destination) {
-    this();
-    setDestination(destination);
-  }
+  private transient String topicName;
+  private transient boolean destinationWarningLogged;
 
   @Override
   public void init() throws CoreException {
-    if (retrieveConnection(MqttConnection.class) == null) {
-      throw new CoreException("PahoMqttConnection is required");
-    }
-
-    if (getDestination() == null) {
-      throw new CoreException("Destination is required");
-    }
-
+    Args.notNull(retrieveConnection(MqttConnection.class), "mqtt-connection");
     mqttClient = getMqtt();
     mqttClient.setCallback(this);
-    topic = mqttClient.getTopic(getDestination().getDestination()).getName();
+    topicName = mqttClient.getTopic(topicName()).getName();
     if (timeToWait != null) {
       long timeToWaitInMillis = timeToWait.toMilliseconds();
       mqttClient.setTimeToWait(timeToWaitInMillis);
@@ -87,7 +100,10 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
 
   @Override
   public void prepare() throws CoreException {
-    /*LicenseChecker.newChecker().checkLicense(this);*/
+    DestinationHelper.logWarningIfNotNull(destinationWarningLogged,
+        () -> destinationWarningLogged = true, getDestination(),
+        "{} uses destination, use topic instead", LoggingHelper.friendlyName(this));
+    DestinationHelper.mustHaveEither(getTopic(), getDestination());
   }
 
   @Override
@@ -110,9 +126,9 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
   @Override
   public void stop() {
     try {
-      mqttClient.unsubscribe(topic);
+      mqttClient.unsubscribe(topicName);
     } catch (MqttException mqtte) {
-      log.error("Could not unsuscribe from topic {}", topic, mqtte);
+      log.error("Could not unsuscribe from topic {}", topicName, mqtte);
     }
     retrieveConnection(MqttConnection.class).stopSyncClientConnection(mqttClient);
   }
@@ -121,19 +137,15 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
   public void close() {
     try {
       if (mqttClient.isConnected()) {
-        mqttClient.unsubscribe(topic);
+        mqttClient.unsubscribe(topicName);
       }
     } catch (MqttException mqtte) {
-      log.error("Could not unsuscribe from topic {}", topic, mqtte);
+      log.error("Could not unsuscribe from topic {}", topicName, mqtte);
     }
     retrieveConnection(MqttConnection.class).closeSyncClientConnection(mqttClient);
     mqttClient = null;
   }
 
-  /*@Override
-  public boolean isEnabled(License license) {
-    return license.isEnabled(LicenseType.Standard);
-  }*/
 
   @Override
   public void connectComplete(boolean reconnect, String serverURI) {
@@ -145,10 +157,10 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
 
   private void subscribeToTopic() {
     try {
-      log.debug("Subscribe to topic [{}]", topic);
-      mqttClient.subscribe(topic);
+      log.debug("Subscribe to topic [{}]", topicName);
+      mqttClient.subscribe(topicName);
     } catch (MqttException mqtte) {
-      log.error("Failed to subscribe to topic [{}]", topic, mqtte);
+      log.error("Failed to subscribe to topic [{}]", topicName, mqtte);
     }
   }
 
@@ -171,7 +183,7 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
 
   /**
    * Return the maximum time to wait for an action to complete.
-   * 
+   *
    * @return timeToWait
    */
   public TimeInterval getTimeToWait() {
@@ -192,7 +204,7 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
    * action carries on running in the background until it completes. The timeout is used on methods
    * that block while the action is in progress.
    * </p>
-   * 
+   *
    * @param timeToWait before the action times out. A value or 0 will wait until the action finishes
    *        and not timeout.
    */
@@ -200,4 +212,17 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements /*Licens
     this.timeToWait = timeToWait;
   }
 
+  @Override
+  protected String newThreadName() {
+    return DestinationHelper.threadName(retrieveAdaptrisMessageListener(), getDestination());
+  }
+
+  public MqttConsumer withTopic(String s) {
+    setTopic(s);
+    return this;
+  }
+
+  private String topicName() {
+    return DestinationHelper.consumeDestination(getTopic(), getDestination());
+  }
 }

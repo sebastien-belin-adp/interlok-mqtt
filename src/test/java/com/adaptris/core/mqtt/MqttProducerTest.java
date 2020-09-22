@@ -18,8 +18,6 @@ package com.adaptris.core.mqtt;
 
 import static com.adaptris.core.jms.JmsProducerCase.assertMessages;
 import org.junit.Test;
-import com.adaptris.core.ConfiguredConsumeDestination;
-import com.adaptris.core.ConfiguredProduceDestination;
 import com.adaptris.core.ProducerCase;
 import com.adaptris.core.StandaloneConsumer;
 import com.adaptris.core.StandaloneProducer;
@@ -58,13 +56,13 @@ public class MqttProducerTest extends ProducerCase {
   }
 
   private StandaloneConsumer buildStandaloneMqttConsumer(EmbeddedActiveMqMqtt activeMqBroker, String topicName) {
-    MqttConsumer mqttConsumer = new MqttConsumer(new ConfiguredConsumeDestination(topicName));
+    MqttConsumer mqttConsumer = new MqttConsumer().withTopic(topicName);
     StandaloneConsumer standaloneConsumer = new StandaloneConsumer(activeMqBroker.getMqttConnection(), mqttConsumer);
     return standaloneConsumer;
   }
 
   private StandaloneProducer buildStandaloneMqttProducer(EmbeddedActiveMqMqtt activeMqBroker, String topicName, boolean retained) {
-    MqttProducer mqttProducer = new MqttProducer(new ConfiguredProduceDestination(topicName));
+    MqttProducer mqttProducer = new MqttProducer().withTopic(topicName);
     mqttProducer.setRetained(retained);
     StandaloneProducer standaloneProducer = new StandaloneProducer(activeMqBroker.getMqttConnection(), mqttProducer);
     return standaloneProducer;
@@ -73,7 +71,7 @@ public class MqttProducerTest extends ProducerCase {
   @Override
   protected Object retrieveObjectForSampleConfig() {
     MqttProducer producer = new MqttProducer();
-    producer.setDestination(new ConfiguredProduceDestination("SampleQueue"));
+    producer.setTopic("mqtt/topic/topicname");
 
     MqttConnection conn = new MqttConnection();
     conn.setServerUri("tcp://localhost:1883");
