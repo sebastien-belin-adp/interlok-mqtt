@@ -32,7 +32,8 @@ ext {
   activeMqVersion = "5.16.0"
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 group   = "com.adaptris"
 version = releaseVersion
 def versionDir = "$buildDir/version"
