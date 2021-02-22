@@ -25,7 +25,8 @@ ext {
 
   interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-core/" + interlokCoreVersion
   interlokCommonJavadocs= project.hasProperty('interlokCommonJavadocs') ? project.getProperty('interlokCommonJavadocs') : javadocsBaseUrl + "/interlok-common/" + interlokCoreVersion
-  componentName = "Interlok MQTT"
+  componentName = "Interlok Messaging/MQTT"
+  componentDesc = "Use a MQTT broker as a messaging platform"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
   slf4jVersion = "1.7.30"
@@ -204,6 +205,7 @@ task generateVersion {
     versionFile.getParentFile().mkdirs()
     ant.propertyfile(file: versionFile) {
       entry(key: "component.name", value: componentName)
+      entry(key: "component.description", value: componentDesc)
       entry(key: "build.version", value: releaseVersion)
       entry(key: 'groupId', value: project.group)
       entry(key: 'artifactId', value: project.name)
@@ -239,7 +241,7 @@ publishing {
 
       pom.withXml {
         asNode().appendNode("name", componentName)
-        asNode().appendNode("description", "Connect to a MQTT broker. Consume and produce MQTT messages.")
+        asNode().appendNode("description", componentDesc)
         // asNode().appendNode("url", "https://interlok.adaptris.net/interlok-docs/mqtt-integration.html")
         // asNode().appendNode("logo", "/interlok/img/mqtt.png")
         def properties = asNode().appendNode("properties")
