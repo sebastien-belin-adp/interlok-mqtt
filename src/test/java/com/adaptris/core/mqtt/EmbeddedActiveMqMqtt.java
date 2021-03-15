@@ -16,9 +16,9 @@
 
 package com.adaptris.core.mqtt;
 
-import static com.adaptris.core.PortManager.nextUnusedPort;
-import static com.adaptris.core.PortManager.release;
-import static com.adaptris.core.jms.JmsConfig.DEFAULT_PAYLOAD;
+import static com.adaptris.interlok.junit.scaffolding.util.PortManager.nextUnusedPort;
+import static com.adaptris.interlok.junit.scaffolding.util.PortManager.release;
+import static com.adaptris.interlok.junit.scaffolding.jms.JmsConfig.DEFAULT_PAYLOAD;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,18 +33,14 @@ import org.apache.activemq.broker.Broker;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.region.Destination;
 import org.apache.activemq.command.ActiveMQDestination;
-//import org.apache.activemq.jndi.ActiveMQInitialContextFactory;
 import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 import org.apache.commons.io.FileUtils;
 
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageFactory;
-//import com.adaptris.core.jms.activemq.BasicActiveMqImplementation;
-//import com.adaptris.core.jms.jndi.StandardJndiImplementation;
 import com.adaptris.core.stubs.ExternalResourcesHelper;
 import com.adaptris.util.GuidGenerator;
 import com.adaptris.util.IdGenerator;
-//import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.PlainIdGenerator;
 
 public class EmbeddedActiveMqMqtt {

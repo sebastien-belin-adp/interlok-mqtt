@@ -16,14 +16,14 @@
 
 package com.adaptris.core.mqtt;
 
-import static com.adaptris.core.jms.JmsProducerCase.assertMessages;
+import static com.adaptris.interlok.junit.scaffolding.jms.JmsProducerCase.assertMessages;
 import org.junit.Test;
-import com.adaptris.core.ConsumerCase;
+import com.adaptris.interlok.junit.scaffolding.ExampleConsumerCase;
 import com.adaptris.core.StandaloneConsumer;
 import com.adaptris.core.StandaloneProducer;
 import com.adaptris.core.stubs.MockMessageListener;
 
-public class MqttConsumerTest extends ConsumerCase {
+public class MqttConsumerTest extends ExampleConsumerCase {
 
   public MqttConsumerTest() {
     super();
@@ -147,11 +147,6 @@ public class MqttConsumerTest extends ConsumerCase {
     conn.setPassword("My Security Key");
     StandaloneConsumer result = new StandaloneConsumer(conn, mqttConsumer);
     return result;
-  }
-
-  @Override
-  public boolean isAnnotatedForJunit4() {
-    return true;
   }
 
 }

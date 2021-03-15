@@ -17,25 +17,25 @@
 package com.adaptris.core.mqtt;
 
 import javax.validation.Valid;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.DisplayOrder;
-import com.adaptris.annotation.Removal;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageConsumerImp;
-import com.adaptris.core.ConsumeDestination;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.util.DestinationHelper;
-import com.adaptris.core.util.LoggingHelper;
 import com.adaptris.interlok.util.Args;
 import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -62,16 +62,6 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements MqttCall
   private TimeInterval timeToWait;
 
   /**
-   * The consume destination is the MQTT topic.
-   */
-  @Getter
-  @Setter
-  @Deprecated
-  @Valid
-  @Removal(version = "4.0.0", message = "Use 'topic' instead")
-  private ConsumeDestination destination;
-
-  /**
    * The MQTT Topic
    *
    */
@@ -83,7 +73,6 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements MqttCall
 
   private transient MqttClient mqttClient;
   private transient String topicName;
-  private transient boolean destinationWarningLogged;
 
   @Override
   public void init() throws CoreException {
@@ -100,10 +89,7 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements MqttCall
 
   @Override
   public void prepare() throws CoreException {
-    DestinationHelper.logWarningIfNotNull(destinationWarningLogged,
-        () -> destinationWarningLogged = true, getDestination(),
-        "{} uses destination, use topic instead", LoggingHelper.friendlyName(this));
-    DestinationHelper.mustHaveEither(getTopic(), getDestination());
+    Args.notNull(getTopic(), "topic");
   }
 
   @Override
@@ -214,7 +200,7 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements MqttCall
 
   @Override
   protected String newThreadName() {
-    return DestinationHelper.threadName(retrieveAdaptrisMessageListener(), getDestination());
+    return DestinationHelper.threadName(retrieveAdaptrisMessageListener());
   }
 
   public MqttConsumer withTopic(String s) {
@@ -223,6 +209,6 @@ public class MqttConsumer extends AdaptrisMessageConsumerImp implements MqttCall
   }
 
   private String topicName() {
-    return DestinationHelper.consumeDestination(getTopic(), getDestination());
+    return getTopic();
   }
 }
