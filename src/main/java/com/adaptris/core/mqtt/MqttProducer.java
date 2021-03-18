@@ -12,7 +12,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package com.adaptris.core.mqtt;
 
@@ -40,7 +40,6 @@ import com.adaptris.core.AdaptrisMessageProducer;
 import com.adaptris.core.CoreException;
 import com.adaptris.core.ProduceException;
 import com.adaptris.core.ProduceOnlyProducerImp;
-import com.adaptris.core.util.DestinationHelper;
 import com.adaptris.interlok.util.Args;
 import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -62,12 +61,12 @@ import lombok.Setter;
 @XStreamAlias("mqtt-producer")
 @AdapterComponent
 @ComponentProfile(summary = "Place message on a MQTT topic", tag = "producer,mqtt",
-    recommended = {MqttConnection.class}, since = "3.5.0")
+recommended = {MqttConnection.class}, since = "3.5.0")
 @DisplayOrder(order = {"topic", "qos", "retained", "timeToWait"})
 @NoArgsConstructor
 public class MqttProducer extends ProduceOnlyProducerImp {
 
-  private transient Map<String, String> cachedTopicURLs = new ConcurrentHashMap<String, String>();
+  private transient Map<String, String> cachedTopicURLs = new ConcurrentHashMap<>();
 
   @NotNull
   @AutoPopulated
@@ -174,7 +173,7 @@ public class MqttProducer extends ProduceOnlyProducerImp {
 
   @Override
   public String endpoint(AdaptrisMessage msg) throws ProduceException {
-    return DestinationHelper.resolveProduceDestination(getTopic(), msg);
+    return msg.resolve(getTopic());
   }
 
   /**
