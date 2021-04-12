@@ -12,38 +12,38 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package com.adaptris.core.mqtt;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import com.adaptris.annotation.AdapterComponent;
 import com.adaptris.annotation.AdvancedConfig;
 import com.adaptris.annotation.AutoPopulated;
 import com.adaptris.annotation.ComponentProfile;
 import com.adaptris.annotation.DisplayOrder;
 import com.adaptris.annotation.InputFieldHint;
-import com.adaptris.annotation.Removal;
 import com.adaptris.core.AdaptrisMessage;
 import com.adaptris.core.AdaptrisMessageProducer;
 import com.adaptris.core.CoreException;
-import com.adaptris.core.ProduceDestination;
 import com.adaptris.core.ProduceException;
 import com.adaptris.core.ProduceOnlyProducerImp;
-import com.adaptris.core.util.DestinationHelper;
-import com.adaptris.core.util.LoggingHelper;
 import com.adaptris.interlok.util.Args;
 import com.adaptris.util.TimeInterval;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -61,12 +61,12 @@ import lombok.Setter;
 @XStreamAlias("mqtt-producer")
 @AdapterComponent
 @ComponentProfile(summary = "Place message on a MQTT topic", tag = "producer,mqtt",
-    recommended = {MqttConnection.class}, since = "3.5.0")
+recommended = {MqttConnection.class}, since = "3.5.0")
 @DisplayOrder(order = {"topic", "qos", "retained", "timeToWait"})
 @NoArgsConstructor
 public class MqttProducer extends ProduceOnlyProducerImp {
 
-  private transient Map<String, String> cachedTopicURLs = new ConcurrentHashMap<String, String>();
+  private transient Map<String, String> cachedTopicURLs = new ConcurrentHashMap<>();
 
   @NotNull
   @AutoPopulated
@@ -80,16 +80,6 @@ public class MqttProducer extends ProduceOnlyProducerImp {
   @Valid
   @AdvancedConfig
   private TimeInterval timeToWait;
-  /**
-   * The destination ressolves to the MQTT Topic
-   *
-   */
-  @Getter
-  @Setter
-  @Deprecated
-  @Valid
-  @Removal(version = "4.0.0", message = "Use 'topic' instead")
-  private ProduceDestination destination;
 
   /**
    * The MQTT Topic
@@ -100,8 +90,6 @@ public class MqttProducer extends ProduceOnlyProducerImp {
   @Setter
   // Needs to be @NotBlank when destination is removed.
   private String topic;
-
-  private transient boolean destWarning;
 
   private transient MqttClient mqttClient;
 
@@ -179,15 +167,13 @@ public class MqttProducer extends ProduceOnlyProducerImp {
 
   @Override
   public void prepare() throws CoreException {
-    DestinationHelper.logWarningIfNotNull(destWarning, () -> destWarning = true, getDestination(),
-        "{} uses destination, use 'topic' instead", LoggingHelper.friendlyName(this));
-    DestinationHelper.mustHaveEither(getTopic(), getDestination());
+    Args.notNull(getTopic(), "topic");
   }
 
 
   @Override
   public String endpoint(AdaptrisMessage msg) throws ProduceException {
-    return DestinationHelper.resolveProduceDestination(getTopic(), getDestination(), msg);
+    return msg.resolve(getTopic());
   }
 
   /**

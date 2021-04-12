@@ -16,14 +16,14 @@
 
 package com.adaptris.core.mqtt;
 
-import static com.adaptris.core.jms.JmsProducerCase.assertMessages;
+import static com.adaptris.interlok.junit.scaffolding.jms.JmsProducerCase.assertMessages;
 import org.junit.Test;
-import com.adaptris.core.ProducerCase;
+import com.adaptris.interlok.junit.scaffolding.ExampleProducerCase;
 import com.adaptris.core.StandaloneConsumer;
 import com.adaptris.core.StandaloneProducer;
 import com.adaptris.core.stubs.MockMessageListener;
 
-public class MqttProducerTest extends ProducerCase {
+public class MqttProducerTest extends ExampleProducerCase {
 
   public MqttProducerTest() {
     super();
@@ -79,10 +79,5 @@ public class MqttProducerTest extends ProducerCase {
     conn.setPassword("My Security Key");
     StandaloneProducer result = new StandaloneProducer(conn, producer);
     return result;
-  }
-
-  @Override
-  public boolean isAnnotatedForJunit4() {
-    return true;
   }
 }

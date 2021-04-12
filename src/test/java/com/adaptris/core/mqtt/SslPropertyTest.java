@@ -12,14 +12,16 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-*/
+ */
 
 package com.adaptris.core.mqtt;
 
 import java.util.Properties;
+
 import org.junit.Assert;
 import org.junit.Test;
-import com.adaptris.core.BaseCase;
+
+import com.adaptris.interlok.junit.scaffolding.BaseCase;
 import com.adaptris.security.exc.PasswordException;
 
 
@@ -132,8 +134,4 @@ public class SslPropertyTest extends BaseCase {
     Assert.assertEquals(expectedValue, sslContextProperties.getProperty(key));
   }
 
-  @Override
-  public boolean isAnnotatedForJunit4() {
-    return true;
-  }
 }

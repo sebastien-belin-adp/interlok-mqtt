@@ -24,7 +24,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.junit.Ignore;
 import org.junit.Test;
-import com.adaptris.core.BaseCase;
+import com.adaptris.interlok.junit.scaffolding.BaseCase;
 import com.adaptris.util.KeyValuePair;
 import com.adaptris.util.KeyValuePairSet;
 
@@ -103,10 +103,5 @@ public class MqttConnectionTest extends BaseCase {
     mqttConnection.setPassword("password");
     mqttConnection.setServerUri("tcp://127.0.0.1:1883");
     return mqttConnection;
-  }
-
-  @Override
-  public boolean isAnnotatedForJunit4() {
-    return true;
   }
 }
