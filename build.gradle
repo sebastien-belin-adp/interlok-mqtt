@@ -1,26 +1,25 @@
 plugins {
-  id 'java'
-  id 'maven'
+  id 'java-library'
   id 'maven-publish'
   id 'jacoco'
-  id 'eclipse'
   // Manage optional dependencies in maven pom.
   id 'nebula.optional-base' version '6.0.0'
-  id 'com.github.spotbugs' version '4.7.1'
-  id 'org.owasp.dependencycheck' version '6.2.0'
+  id 'com.github.spotbugs' version '4.7.2'
+  id 'org.owasp.dependencycheck' version '6.2.2'
   id "io.freefair.lombok" version "5.3.3.3"
 }
 
 ext {
-  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '4.1-SNAPSHOT'
-  releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '4.1-SNAPSHOT'
-  nexusBaseUrl = project.hasProperty('nexusBaseUrl') ? project.getProperty('nexusBaseUrl') : 'https://nexus.adaptris.net/nexus'
-  mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : nexusBaseUrl + '/content/repositories/snapshots'
+  interlokCoreVersion = project.findProperty('interlokCoreVersion') ?: '4.2-SNAPSHOT'
+  releaseVersion = project.findProperty('releaseVersion') ?: '4.2-SNAPSHOT'
+  nexusBaseUrl = project.findProperty('nexusBaseUrl') ?: 'https://nexus.adaptris.net/nexus'
+  mavenPublishUrl = project.findProperty('mavenPublishUrl') ?: nexusBaseUrl + '/content/repositories/snapshots'
   javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
-  repoUsername = project.hasProperty('repoUsername') ? project.getProperty('repoUsername') : 'unknown'
-  repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : 'unknown'
-  defaultNexusRepo = project.hasProperty('defaultNexusRepo') ? project.getProperty('defaultNexusRepo') : 'https://repo1.maven.org/maven2/'
+  repoUsername = project.findProperty('repoUsername') ?: 'unknown'
+  repoPassword = project.findProperty('repoPassword') ?: 'unknown'
+  defaultNexusRepo = project.findProperty('defaultNexusRepo') ?: 'unknown'
   offlineJavadocPackageDir = new File(project.buildDir, "offline-javadoc-packages")
+
   delombokTargetDir = new File("${project.projectDir}/src/main/generated")
 
   interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-core/" + interlokCoreVersion
@@ -29,8 +28,8 @@ ext {
   componentDesc = "Use a MQTT broker as a messaging platform"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
-  slf4jVersion = "1.7.30"
-  mockitoVersion = '3.11.0'
+  slf4jVersion = "1.7.32"
+  mockitoVersion = '3.11.2'
   activeMqVersion = "5.16.2"
 }
 
@@ -41,13 +40,6 @@ version = releaseVersion
 def versionDir = "$buildDir/version"
 generateLombokConfig.enabled = false
 
-if (JavaVersion.current().isJava8Compatible()) {
-  allprojects {
-    tasks.withType(Javadoc) {
-      options.addStringOption("Xdoclint:none", "-quiet")
-    }
-  }
-}
 ext.gitBranchNameOrTimestamp = { branchName ->
   if (branchName.equals("HEAD") || branchName.equals("develop") || branchName.startsWith("release")) {
     return new Date().format('HH:mm:ss z');
@@ -66,19 +58,32 @@ ext.buildInfo = { ->
       return gitBranchNameOrTimestamp(branchName);
     }
 }
+// Disable gradle module generation since we probably don't want
+// xxx.module files in your repository.
+allprojects {
+  tasks.withType(Jar) {
+    metaInf {
+      from ("$rootDir") {
+        include 'LICENSE*'
+        include 'NOTICE*'
+      }
+    }
+  }
+  tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+  }
+}
 
 repositories {
   mavenCentral()
-  maven { url "$defaultNexusRepo" }
+  if (defaultNexusRepo != "unknown") {
+    maven {
+      url "$defaultNexusRepo"
+      allowInsecureProtocol true
+    }
+  }
   maven { url "$nexusBaseUrl/content/groups/public" }
   maven { url "$nexusBaseUrl/content/groups/interlok" }
-}
-
-eclipse {
-    classpath {
-        downloadJavadoc = true
-        downloadSources = true
-    }
 }
 
 configurations {
@@ -110,36 +115,26 @@ configurations.all {
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-  compile ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
-  compile ("com.adaptris:interlok-common:$interlokCoreVersion") { changing= true}
+  api ("com.adaptris:interlok-core:$interlokCoreVersion") { changing= true}
+  api ("com.adaptris:interlok-common:$interlokCoreVersion") { changing= true}
 
-  compile "org.slf4j:slf4j-api:$slf4jVersion"
+  implementation "org.slf4j:slf4j-api:$slf4jVersion"
 
-  compile "javax.transaction:jta:1.1"
-  compile "org.apache.httpcomponents:httpclient:4.5.13"
-  compile "commons-codec:commons-codec:1.15"
-  compile "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
+  implementation "javax.transaction:jta:1.1"
+  implementation "org.apache.httpcomponents:httpclient:4.5.13"
+  implementation "commons-codec:commons-codec:1.15"
+  implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 
-  // specified by interlok-common in its compile scope.
-  // runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
-  // runtime "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+  testImplementation ('junit:junit:4.13.2')
+  testImplementation ("org.slf4j:slf4j-simple:$slf4jVersion")
+  testImplementation ("com.adaptris:interlok-stubs:$interlokCoreVersion") { changing= true }
+  testImplementation ("org.mockito:mockito-core:$mockitoVersion")
+  testImplementation ("org.mockito:mockito-inline:$mockitoVersion")
 
-  testCompile "junit:junit:4.13.2"
-  testCompile "org.slf4j:slf4j-simple:$slf4jVersion"
-  // exclude any log4j dependencies so that we can just use slf4j simple.
-  // works around INTERLOk-3233
-  testCompile "com.adaptris:interlok-stubs:$interlokCoreVersion", {
-    changing= true
-    exclude group: "org.apache.logging.log4j"
-  }
-  // testCompile "log4j:log4j:1.2.17"
-  testCompile ("org.mockito:mockito-core:$mockitoVersion")
-  testCompile ("org.mockito:mockito-inline:$mockitoVersion")
-
-  testCompile "org.apache.activemq:activemq-broker:$activeMqVersion"
-  testCompile "org.apache.activemq:activemq-mqtt:$activeMqVersion"
+  testImplementation "org.apache.activemq:activemq-broker:$activeMqVersion"
+  testImplementation "org.apache.activemq:activemq-mqtt:$activeMqVersion"
 
   javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
   offlineJavadocPackages ("com.adaptris:interlok-core:$interlokCoreVersion:javadoc@jar") { changing= true}
@@ -165,14 +160,15 @@ javadoc {
     options.linksOffline(interlokCommonJavadocs, offlineJavadocPackageDir.getCanonicalPath() + "/interlok-common-$interlokCoreVersion-javadoc.jar")
     taglets = ["com.adaptris.taglet.ConfigTaglet", "com.adaptris.taglet.LicenseTaglet"]
     options.addStringOption "tagletpath", configurations.javadoc.asPath
+    options.addStringOption("Xdoclint:none", "-quiet")
     options.addBooleanOption "-no-module-directories", true
   }
 }
 
 jacocoTestReport {
     reports {
-        xml.enabled true
-        html.enabled true
+        xml.required= true
+        html.required= true
     }
 }
 
@@ -280,7 +276,7 @@ task lgtmCompile(type: JavaCompile, dependsOn: delombok) {
   description 'Compile for lgtm'
 
   source = sourceSets.main.extensions.delombokTask
-  destinationDir = sourceSets.main.java.outputDir
+  destinationDirectory= sourceSets.main.java.classesDirectory
   classpath = project.sourceSets.main.compileClasspath
 }
 
@@ -309,7 +305,7 @@ spotbugsMain {
 }
 dependencyCheck  {
   suppressionFiles= [ "https://raw.githubusercontent.com/adaptris/interlok/develop/gradle/owasp-exclude.xml", "$rootDir/gradle/owasp-exclude.xml" ]
-  skipConfigurations = [ "antSql", "spotbugs", "umlDoclet", "offlineJavadocPackages", "javadoc", "jacocoAnt", "jacocoAgent", "spotbugsPlugins", "spotbugsSlf4j" ]
+  scanConfigurations = [ "api", "compileClasspath", "runtimeClasspath" ]
   formats = [ "HTML", "JUNIT" ]
   junitFailOnCVSS = 7.0
   failBuildOnCVSS = 7.0
