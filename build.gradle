@@ -243,8 +243,7 @@ publishing {
       pom.withXml {
         asNode().appendNode("name", componentName)
         asNode().appendNode("description", componentDesc)
-        // asNode().appendNode("url", "https://interlok.adaptris.net/interlok-docs/mqtt-integration.html")
-        // asNode().appendNode("logo", "/interlok/img/mqtt.png")
+		asNode().appendNode("url", "https://interlok.adaptris.net/interlok-docs/#/")
         def properties = asNode().appendNode("properties")
         properties.appendNode("externalUrl", "http://mqtt.org")
         properties.appendNode("notes", "Requires additional jars not automatically delivered")
