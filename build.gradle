@@ -4,14 +4,14 @@ plugins {
   id 'jacoco'
   // Manage optional dependencies in maven pom.
   id 'nebula.optional-base' version '7.0.0'
-  id 'com.github.spotbugs' version '4.7.9'
-  id 'org.owasp.dependencycheck' version '6.5.0.1'
-  id "io.freefair.lombok" version "6.2.0"
+  id 'com.github.spotbugs' version '5.0.5'
+  id 'org.owasp.dependencycheck' version '6.5.3'
+  id "io.freefair.lombok" version "6.3.0"
 }
 
 ext {
-  interlokCoreVersion = project.findProperty('interlokCoreVersion') ?: '4.3-SNAPSHOT'
-  releaseVersion = project.findProperty('releaseVersion') ?: '4.3-SNAPSHOT'
+  interlokCoreVersion = project.findProperty('interlokCoreVersion') ?: '4.4-SNAPSHOT'
+  releaseVersion = project.findProperty('releaseVersion') ?: '4.4-SNAPSHOT'
   nexusBaseUrl = project.findProperty('nexusBaseUrl') ?: 'https://nexus.adaptris.net/nexus'
   mavenPublishUrl = project.findProperty('mavenPublishUrl') ?: nexusBaseUrl + '/content/repositories/snapshots'
   javadocsBaseUrl = nexusBaseUrl + "/content/sites/javadocs/com/adaptris"
@@ -28,8 +28,8 @@ ext {
   componentDesc = "Use a MQTT broker as a messaging platform"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
-  slf4jVersion = "1.7.32"
-  mockitoVersion = '4.0.0'
+  slf4jVersion = "1.7.35"
+  mockitoVersion = '4.3.1'
   activeMqVersion = "5.16.3"
 }
 
@@ -243,8 +243,7 @@ publishing {
       pom.withXml {
         asNode().appendNode("name", componentName)
         asNode().appendNode("description", componentDesc)
-        // asNode().appendNode("url", "https://interlok.adaptris.net/interlok-docs/mqtt-integration.html")
-        // asNode().appendNode("logo", "/interlok/img/mqtt.png")
+		asNode().appendNode("url", "https://interlok.adaptris.net/interlok-docs/#/")
         def properties = asNode().appendNode("properties")
         properties.appendNode("externalUrl", "http://mqtt.org")
         properties.appendNode("notes", "Requires additional jars not automatically delivered")
@@ -284,25 +283,20 @@ task deleteGeneratedFiles(type: Delete) {
   delete delombokTargetDir
 }
 
-
 spotbugsMain {
   effort = "max"
   reportLevel = "high"
-  // showProgress = "true"
-  effort = "max"
-  // Ignore failures?
-  // ignoreFailures = false
   reports {
     xml {
-      enabled = false
+      required.set(false)
     }
     html {
-      enabled = true
+      required.set(true)
+      stylesheet = 'default.xsl'
     }
   }
-  // includeFilter = new File("$rootDir/gradle/spotbugs-filter.xml")
-  // excludeFilter = new File("$rootDir/gradle/spotbugs-exclude.xml")
 }
+
 dependencyCheck  {
   suppressionFiles= [ "https://raw.githubusercontent.com/adaptris/interlok/develop/gradle/owasp-exclude.xml", "$rootDir/gradle/owasp-exclude.xml" ]
   scanConfigurations = [ "api", "compileClasspath", "runtimeClasspath" ]
