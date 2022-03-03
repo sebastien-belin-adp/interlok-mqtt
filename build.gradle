@@ -30,7 +30,7 @@ ext {
   organizationUrl = "http://www.adaptris.com"
   slf4jVersion = "1.7.36"
   mockitoVersion = '4.3.1'
-  activeMqVersion = "5.16.3"
+  activeMqVersion = "5.16.4"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
