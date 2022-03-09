@@ -32,8 +32,7 @@ jobs:
     - name: Gradle Dependency Check Analyze
       run: /gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon dependencyCheckAnalyze
     - name: Publish package
-      with:
-        arguments: publish
+      run: /gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon publish
       env:
         ORG_GRADLE_PROJECT_repoUsername: deployment
         ORG_GRADLE_PROJECT_repoPassword: ${{ secrets.NEXUS_REPO_PASSWORD }}
