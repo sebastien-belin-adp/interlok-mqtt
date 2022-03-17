@@ -29,12 +29,13 @@ jobs:
     - name: Gradle Dependency Check Analyze
       run: ./gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon dependencyCheckAnalyze
     - name: Publish package
+      if: success()
       run: ./gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon publish
       env:
         ORG_GRADLE_PROJECT_repoUsername: deployment
         ORG_GRADLE_PROJECT_repoPassword: ${{ secrets.NEXUS_REPO_PASSWORD }}
     - name: Notify Teams About Failure
- #     if: ${{ failure() }}
+      if: ${{ failure() }}
       run: |
          cat << EOF > message.json
          {"@type":"MessageCard","@context":"https://schema.org/extensions","summary":"Gradle Publish Failed!","themeColor":"ff0000","title":"Failure Notification from GitHub Gradle Publish","sections":[{"facts":[{"name":"Status:","value":"Failed"},{"name":"Repository:","value":"$GITHUB_REPOSITORY"},{"name":"Branch:","value":"$GITHUB_REF_NAME"},{"name":"Commit:","value":"$GITHUB_SHA"}]}],"potentialAction":[{"@type":"OpenUri","name":"View on GitHub","targets":[{"os":"default","uri":"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"}]}]}
