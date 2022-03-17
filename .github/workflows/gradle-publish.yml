@@ -40,4 +40,21 @@ jobs:
          cat << EOF > message.json
          {"@type":"MessageCard","@context":"https://schema.org/extensions","summary":"Gradle Publish Failed!","themeColor":"ff0000","title":"Failure Notification from GitHub Gradle Publish","sections":[{"facts":[{"name":"Status:","value":"Failed"},{"name":"Repository:","value":"$GITHUB_REPOSITORY"},{"name":"Branch:","value":"$GITHUB_REF_NAME"},{"name":"Commit:","value":"$GITHUB_SHA"}]}],"potentialAction":[{"@type":"OpenUri","name":"View on GitHub","targets":[{"os":"default","uri":"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"}]}]}
          EOF
-         curl -X POST ${{ secrets.TEAMS_IDN_WH_URL }} --header 'Content-Type: application/json' -d @message.json
+         curl -X POST ${{ secrets.TEAMS_IDN_WH_URL }} --header "Content-Type: application/json" -d @message.json
+    - name: Get latest workflow run status
+      if: ${{ success() }}
+      uses: actions/github-script@v3
+      id: latest-workflow-status
+      with:
+        script: |
+          const runs = await github.actions.listWorkflowRuns({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: "gradle-publish.yml",
+            per_page: 2
+          })
+          return runs.data.workflow_runs[1].conclusion
+        result-encoding: string
+    # If previous workflow run failed and the current succeeded
+    - name: Notify Teams About Failure Recovery
+      if: ${{ success() && steps.latest-workflow-status.outputs.result == 'failure' }}
