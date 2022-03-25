@@ -31,4 +31,4 @@ jobs:
     - name: Notify Teams About Failure and Recovery
       uses: interlok-tooling/notify-teams@main
       with:
-        teams-webhook-url-secret-name: 'TEAMS_IDN_WH_URL'
+        teams-webhook-url-secret-name: ${{ secrets.TEAMS_IDN_WH_URL }}
