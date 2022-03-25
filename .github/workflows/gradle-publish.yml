@@ -29,4 +29,4 @@ jobs:
     - name: Gradle Dependency Check Analyze
       run: ./gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon dependencyCheckAnalyze
     - name: Notify Teams About Failure and Recovery
-      uses: actions/notify-teams@v1
+      uses: actions/interlok-tooling/notify-teams@v1
