@@ -47,7 +47,7 @@ jobs:
       id: latest-workflow-status
       with:
         script: |
-          const runs = await github.actions.listWorkflowRuns({
+          const runs = await github.rest.actions.listWorkflowRuns({
             owner: context.repo.owner,
             repo: context.repo.repo,
             workflow_id: "gradle-publish.yml",
