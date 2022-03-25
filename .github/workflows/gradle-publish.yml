@@ -29,6 +29,6 @@ jobs:
     - name: Gradle Dependency Check Analyze
       run: ./gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon dependencyCheckAnalyze
     - name: Notify Teams About Failure and Recovery
-      uses: interlok-tooling/notify-teams@develop
+      uses: interlok-tooling/notify-teams@main
       with:
         teams-webhook-url-secret-name: 'TEAMS_IDN_WH_URL'
