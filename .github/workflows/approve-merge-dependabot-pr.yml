@@ -1,0 +1,42 @@
+name: Approve And Merge Dependabot PR
+
+on:
+  pull_request:
+
+jobs:
+  approvemerge:
+    name: Approve And Merge Dependabot PR
+    runs-on: ubuntu-latest
+	  if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+	  # Perform the approve and merge action only when the PR is raised by dependabot
+    steps:
+      - name: Dependabot Metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1.1.1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+        # The following properties are now available:
+        #  - steps.metadata.outputs.dependency-names
+        #  - steps.metadata.outputs.dependency-type
+        #  - steps.metadata.outputs.update-type
+      - name: Approve a Dependabot PR If Not Already Approved
+        # Only mockito and patch version
+        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
+        # run: gh pr review --approve "$PR_URL"
+        run: |
+          gh pr checkout "$PR_URL" # Sets the upstream metadata for 'gh pr status'
+          if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ];
+          then gh pr review --approve "$PR_URL"
+          else echo "PR already approved, skipping additional approvals.";
+          fi
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Merge a Dependabot PR
+        # Only mockito and patch version
+        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
+        # Auto merge the PR using dependabot command '@dependabot merge'
+        run: gh pr comment --body "@dependabot merge" "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
