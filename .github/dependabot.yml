@@ -17,11 +17,7 @@ updates:
     allow:
       - dependency-type: "all"
     reviewers:
-      - quotidian-ennui
-      - mcwarman
-      - aaron-mcgrath-adp
       - sebastien-belin-adp
-      - higgyfella
   - package-ecosystem: "github-actions"
     directory: "/"
     open-pull-requests-limit: 20
@@ -30,8 +26,4 @@ updates:
     allow:
       - dependency-type: "all"
     reviewers:
-      - quotidian-ennui
-      - mcwarman
-      - aaron-mcgrath-adp
       - sebastien-belin-adp
-      - higgyfella
