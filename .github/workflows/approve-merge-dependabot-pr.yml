@@ -1,7 +1,7 @@
 name: Approve And Merge Dependabot PR
 
 on:
-  pull_request:
+  pull_request_target:
 
 jobs:
   approvemerge:
@@ -19,24 +19,27 @@ jobs:
         #  - steps.metadata.outputs.dependency-names
         #  - steps.metadata.outputs.dependency-type
         #  - steps.metadata.outputs.update-type
+      - name: Check If Should Approve And Merge
+        id: checkapprovemerge
+        if: |
+          ${{(
+            contains(steps.metadata.outputs.dependency-names, 'mockito-core') ||
+            contains(steps.metadata.outputs.dependency-names, 'io.freefair.lombokOOO')
+          ) && steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
+        run: |
+          echo "::set-output name=result::true"
       - name: Approve a Dependabot PR If Not Already Approved
         # Only mockito and patch version
-        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
+        if: steps.checkapprovemerge.outputs.result == 'true'
         run: gh pr review --approve "$PR_URL"
-        #run: |
-        #  gh pr checkout "$PR_URL" # Sets the upstream metadata for 'gh pr status'
-        #  if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ];
-        #  then gh pr review --approve "$PR_URL"
-        #  else echo "PR already approved, skipping additional approvals.";
-        #  fi
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.DEPENDABOT_APPROVE_MERGE_GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Merge a Dependabot PR
         # Only mockito and patch version
-        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
+        if: steps.checkapprovemerge.outputs.result == 'true'
         # Auto merge the PR using dependabot command '@dependabot merge'
         run: gh pr comment --body "@dependabot merge" "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.DEPENDABOT_APPROVE_MERGE_GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
