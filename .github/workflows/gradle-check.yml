@@ -1,0 +1,30 @@
+name: Gradle Check
+
+on:
+  push:
+    branches-ignore:
+    - develop
+
+jobs:
+  gradle-check:
+    name: Gradle Check
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 11
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: wrapper
+    - name: Execute Gradle build
+      run: ./gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon -PverboseTests=true check
+    - name: Gradle Dependency Check Analyze
+      run: ./gradlew -Djava.security.egd=file:/dev/./urandom -Dorg.gradle.console=plain --no-daemon dependencyCheckAnalyze
+        
