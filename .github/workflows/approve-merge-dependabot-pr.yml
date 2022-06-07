@@ -21,7 +21,7 @@ jobs:
         #  - steps.metadata.outputs.update-type
       - name: Approve a Dependabot PR If Not Already Approved
         # Only mockito and patch version
-        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
+        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
         # run: gh pr review --approve "$PR_URL"
         run: |
           gh pr checkout "$PR_URL" # Sets the upstream metadata for 'gh pr status'
@@ -34,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Merge a Dependabot PR
         # Only mockito and patch version
-        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
+        if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
         # Auto merge the PR using dependabot command '@dependabot merge'
         run: gh pr comment --body "@dependabot merge" "$PR_URL"
         env:
