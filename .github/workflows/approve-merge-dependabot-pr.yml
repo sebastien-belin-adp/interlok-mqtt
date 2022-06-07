@@ -31,7 +31,7 @@ jobs:
         #  fi
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.DEPENDABOT_APPROVE_MERGE_GITHUB_TOKEN}}
       - name: Merge a Dependabot PR
         # Only mockito and patch version
         if: ${{contains(steps.metadata.outputs.dependency-names, 'mockito-core') && steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
@@ -39,4 +39,4 @@ jobs:
         run: gh pr comment --body "@dependabot merge" "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.DEPENDABOT_APPROVE_MERGE_GITHUB_TOKEN}}
