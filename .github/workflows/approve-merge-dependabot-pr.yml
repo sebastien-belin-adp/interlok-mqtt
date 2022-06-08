@@ -21,14 +21,23 @@ jobs:
         #  - steps.dependabot-metadata.outputs.update-type
       - name: Check If Should Approve And Merge
         id: check-approve-merge
-        if: |
-          (
-            contains(steps.dependabot-metadata.outputs.dependency-names, 'mockito-core') ||
-            contains(steps.dependabot-metadata.outputs.dependency-names, 'io.freefair.lombok') ||
-            contains(steps.dependabot-metadata.outputs.dependency-names, 'com.github.spotbugs')
-          ) && steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
-        run: |
-          echo "::set-output name=result::true"
+        uses: actions/github-script@v6
+        if: steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
+        with:
+          script: |
+            const dependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs"]
+            function hasAtLeastOneDependency() {
+              for (const dependency of dependencies) {
+                console.log(dependency);
+                if (${{ contains(steps.dependabot-metadata.outputs.dependency-names, dependency) }}) {
+                  console.log("contains");
+                  return true;
+                }
+              }
+              return false;
+            }
+            return hasAtLeastOneDependency()
+          result-encoding: string
       - name: Approve a Dependabot PR If Not Already Approved
         # Only mockito and patch version
         if: steps.check-approve-merge.outputs.result == 'true'
