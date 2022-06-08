@@ -25,7 +25,7 @@ jobs:
         if: steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
         with:
           script: |
-            const dependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs"]
+            const dependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs","org.owasp.dependencycheck"]
             function hasAtLeastOneDependency() {
               for (const dependency of dependencies) {
                 console.log(dependency);
