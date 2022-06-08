@@ -1,9 +1,7 @@
 name: Approve And Merge Dependabot PR
 
 on:
-  # pull_request:
-  check_suite:
-    types: [completed]
+  pull_request:
 
 jobs:
   approvemerge:
