@@ -26,8 +26,9 @@ jobs:
         with:
           script: |
             const validDependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs","org.owasp.dependencycheck"]
-            const prDependencies = ${{ steps.dependabot-metadata.outputs.dependency-names }}
-            console.log(prDependencies);
+            //const prDependencies = ${{ steps.dependabot-metadata.outputs.dependency-names }}
+            const prDependencies = context.steps.dependabot-metadata.outputs.dependency-names
+            console.log(prDependencies)
             function hasAtLeastOneDependency() {
               for (const dependency of validDependencies) {
                 console.log(dependency);
