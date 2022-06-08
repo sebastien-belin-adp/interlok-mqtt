@@ -21,13 +21,13 @@ jobs:
         #  - steps.dependabot-metadata.outputs.update-type
       - name: Check If Should Approve And Merge
         id: check-approve-merge
-        uses: actions/github-script@v6
         if: steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
         with:
           script: |
             const validDependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs","org.owasp.dependencycheck"]
+            console.log(context.steps)
             //const prDependencies = ${{ steps.dependabot-metadata.outputs.dependency-names }}
-            const prDependencies = context.steps["dependabot-metadata"].outputs.dependency-names
+            /*const prDependencies = [${{ steps.dependabot-metadata.outputs.dependency-names }}]
             console.log(prDependencies)
             function hasAtLeastOneDependency() {
               for (const dependency of validDependencies) {
@@ -39,7 +39,8 @@ jobs:
               }
               return false;
             }
-            return hasAtLeastOneDependency()
+            return hasAtLeastOneDependency()*/
+            return false;
           result-encoding: string
       - name: Approve a Dependabot PR If Not Already Approved
         # Only mockito and patch version
