@@ -21,6 +21,7 @@ jobs:
         #  - steps.dependabot-metadata.outputs.update-type
       - name: Check If Should Approve And Merge
         id: check-approve-merge
+        continue-on-error: true
         if: steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
         uses: actions/github-script@v6
         with:
@@ -38,6 +39,7 @@ jobs:
             return hasAtLeastOneDependency()
           result-encoding: string
       - name: Approve a Dependabot PR If Not Already Approved
+        continue-on-error: true
         # Only mockito and patch version
         if: steps.check-approve-merge.outputs.result == 'true'
         run: gh pr review --approve "$PR_URL"
@@ -45,6 +47,7 @@ jobs:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.DEPENDABOT_APPROVE_MERGE_GITHUB_TOKEN}}
       - name: Merge a Dependabot PR
+        continue-on-error: true
         # Only mockito and patch version
         if: steps.check-approve-merge.outputs.result == 'true'
         # Auto merge the PR using dependabot command '@dependabot merge'
