@@ -26,7 +26,8 @@ jobs:
         if: |
           (
             contains(steps.dependabot-metadata.outputs.dependency-names, 'mockito-core') ||
-            contains(steps.dependabot-metadata.outputs.dependency-names, 'io.freefair.lombok')
+            contains(steps.dependabot-metadata.outputs.dependency-names, 'io.freefair.lombok') ||
+            contains(steps.dependabot-metadata.outputs.dependency-names, 'com.github.spotbugs')
           ) && steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
         run: |
           echo "::set-output name=result::true"
