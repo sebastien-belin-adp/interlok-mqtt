@@ -26,10 +26,7 @@ jobs:
         with:
           script: |
             const validDependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs","org.owasp.dependencycheck"]
-            console.log(context.steps)
-            //const prDependencies = ${{ steps.dependabot-metadata.outputs.dependency-names }}
-            /*const prDependencies = [${{ steps.dependabot-metadata.outputs.dependency-names }}]
-            console.log(prDependencies)
+            const prDependencies = "${{ steps.dependabot-metadata.outputs.dependency-names }}"
             function hasAtLeastOneDependency() {
               for (const dependency of validDependencies) {
                 console.log(dependency);
@@ -40,8 +37,7 @@ jobs:
               }
               return false;
             }
-            return hasAtLeastOneDependency()*/
-            return false;
+            return hasAtLeastOneDependency()
           result-encoding: string
       - name: Approve a Dependabot PR If Not Already Approved
         # Only mockito and patch version
