@@ -25,13 +25,11 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const validDependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs","org.owasp.dependencycheck"]
+            const validDependencies = ["mockito-core","jackson-bom","io.freefair.lombok","com.github.spotbugs","org.owasp.dependencycheck","grpc-protobuf","protobuf-java","grpc-google-cloud-pubsub-v1","google-cloud-pubsub","aws-java-sdk-core","twilio","jnats","activemq-broker"]
             const prDependencies = "${{ steps.dependabot-metadata.outputs.dependency-names }}"
             function hasAtLeastOneDependency() {
               for (const dependency of validDependencies) {
-                console.log(dependency);
                 if (prDependencies.includes(dependency)) {
-                  console.log("contains")
                   return true;
                 }
               }
