@@ -22,6 +22,7 @@ jobs:
       - name: Check If Should Approve And Merge
         id: check-approve-merge
         if: steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
+        uses: action/script@v6
         with:
           script: |
             const validDependencies = ["mockito-core","io.freefair.lombok","com.github.spotbugs","org.owasp.dependencycheck"]
