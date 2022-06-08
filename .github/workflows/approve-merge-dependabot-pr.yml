@@ -22,10 +22,10 @@ jobs:
       - name: Check If Should Approve And Merge
         id: checkapprovemerge
         if: |
-          ${{(
+          (
             contains(steps.metadata.outputs.dependency-names, 'mockito-core') ||
             contains(steps.metadata.outputs.dependency-names, 'io.freefair.lombokOOO')
-          ) && steps.metadata.outputs.update-type == 'version-update:semver-minor'}}
+          ) && steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
           echo "::set-output name=result::true"
       - name: Approve a Dependabot PR If Not Already Approved
