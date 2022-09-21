@@ -28,7 +28,7 @@ ext {
   componentDesc = "Use a MQTT broker as a messaging platform"
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
-  slf4jVersion = "2.0.1"
+  slf4jVersion = "2.0.2"
   mockitoVersion = '4.8.0'
   activeMqVersion = "5.17.2"
 }
