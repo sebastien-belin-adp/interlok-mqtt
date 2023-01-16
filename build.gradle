@@ -29,7 +29,7 @@ ext {
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://www.adaptris.com"
   slf4jVersion = "2.0.3"
-  mockitoVersion = '4.8.0'
+  mockitoVersion = '5.0.0'
   activeMqVersion = "5.17.2"
 }
 
