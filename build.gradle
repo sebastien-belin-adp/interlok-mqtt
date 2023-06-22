@@ -122,7 +122,7 @@ dependencies {
 
   implementation "javax.transaction:jta:1.1"
   implementation "org.apache.httpcomponents:httpclient:4.5.13"
-  implementation "commons-codec:commons-codec:1.15"
+  implementation "commons-codec:commons-codec:1.16.0"
   implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
 
   annotationProcessor ("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
