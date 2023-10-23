@@ -30,3 +30,6 @@ jobs:
        command: "${{ inputs.command }}"
        max_retries: 5
        retry_wait: 2
+      env:
+        ORG_GRADLE_PROJECT_repoUsername: deployment
+        ORG_GRADLE_PROJECT_repoPassword: dummy
