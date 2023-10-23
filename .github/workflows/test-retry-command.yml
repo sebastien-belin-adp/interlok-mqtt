@@ -27,10 +27,8 @@ jobs:
     - name: Run command
       uses: sebastien-belin-adp/retry-command@main
       with:
-       command: |
-         fail(){ return $((RANDOM % 2)); };
-         fail
-       max_retries: 5
+       command: ./gradlew randomFail
+       max_retries: 7
        retry_wait: 2
       env:
         ORG_GRADLE_PROJECT_repoUsername: deployment
