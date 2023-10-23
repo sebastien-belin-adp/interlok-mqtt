@@ -27,7 +27,9 @@ jobs:
     - name: Run command
       uses: sebastien-belin-adp/retry-command@main
       with:
-       command: "${{ inputs.command }}"
+       command: |
+         fail(){ return $((RANDOM % 2)); };
+         fail
        max_retries: 5
        retry_wait: 2
       env:
