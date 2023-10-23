@@ -1,0 +1,32 @@
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command'
+        type: string
+        required: true
+
+jobs:
+  windows:
+    name: Build and Publish Windows Installer
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 11
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: wrapper
+    - name: Run command
+      uses: sebastien-belin-adp/retry-command@main
+      with:
+       command: "${{ inputs.command }}"
+       max_retries: 5
+       retry_wait: 2
