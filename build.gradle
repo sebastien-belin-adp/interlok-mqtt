@@ -308,6 +308,13 @@ dependencyCheck  {
   }
 }
 
+task randomFail() {
+	var radm = new Random().nextInt()
+	if(radm % 2 == 1) {
+	    throw new GradleException('Required GRADLE_USER_HOME environment variable not set.')
+	}
+}
+
 // disable spotbugsTests which checks our test code..
 spotbugsTest.enabled = false
 clean.dependsOn deleteGeneratedFiles
